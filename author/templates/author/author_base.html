@@ -1,0 +1,265 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'profile.css' %}">
+    <title>{{ author.displayName }}'s Profile</title>
+</head>
+<body>
+    <div class="header">
+        <a href="{% url 'author_profile' request.user.id %}"> <!-- TO-DO replace with actual author id-->
+            {% if author.profileImage %}
+            <img class="profile-pic-header" src="{{ author.profileImage }}">
+            {% else %}
+            <img class="profile-pic-header" src="{% static 'avatar.png' %}">
+            {% endif %}
+        </a>
+        <form method="GET" action="{% url 'search_results' %}" class="search-form">
+            <input type="text" name="q" placeholder="Search by display name..." class="search-bar">
+            <button type="submit" class="search-button">Search</button>
+        </form>
+        <div class="icons">
+            <a href="{% url 'home_page' %}">
+                <img src="{% static 'home.png' %}">
+            </a>
+            <a href="{% url 'create_post' %}">
+                <img src="{% static 'add_post.png' %}">
+            </a>
+            <a href="{% url 'inbox' %}">
+                <img src="{% static 'inbox.png' %}">
+            </a>
+        </div>
+    </div>
+
+
+    <div class="container">
+ 
+        <div class="profile-area">
+            {% if author.profileImage %}
+                <img class="profile-pic" src="{{ author.profileImage }}">
+            {% else %}
+                <img class="profile-pic" src="{% static 'avatar.png' %}">
+            {% endif %}          
+        <h2 class="profile-name ubuntu-bold" >{{ author.displayName }}</h2>
+        
+        <!-- Get all the information of the user and author -->
+        <form method="POST" action="{% url 'follow-author' author.author_serial %}" class="follow-form"
+                data-author-author_serial="{{ author.author_serial }}"
+                data-author-id="{{ author.id }}"
+                data-author-host="{{ author.host }}"
+                data-author-name="{{ author.displayName }}"
+                data-author-github="{{ author.user.github }}"
+                data-author-profile-image="{{ author.user.profileImage.url }}"
+
+                data-actor-author_serial="{{ request.user.author_serial }}"
+                data-actor-id="{{ request.user.id }}"
+                data-actor-name="{{ request.user.displayName }}"
+                data-actor-host="{{ request.user.host }}"
+                data-actor-github="{{ request.user.github }}"
+                data-actor-profile-image="{% if request.user.profileImage %}{{ request.user.profileImage.url }}{% else %}None{% endif %}">
+            {% csrf_token %}
+            {% if is_following %}
+                <button type="button" class="unfollow-button">Unfollow</button>
+            {% else %}
+                <button type="button" class="follow-button">Follow</button>
+            {% endif %}
+        </form>
+        <div class="follow-info">
+            <!-- Clickable link for followers list - Changed to use author.id -->
+            <a href="{% url 'followers_list' author.id %}" class="followers follower-following-buttons">
+                <strong>{{ followers_count }}</strong> Followers
+            </a>
+
+            <span> | </span>
+
+            <!-- Clickable link for following list - Changed to use author.id -->
+            <a href="{% url 'following_list' author.id %}" class="following follower-following-buttons">
+                <strong>{{ following_count }}</strong> Following
+            </a>
+        </div>
+
+            <ul class="profile-menu">
+                <!-- Changed all links to use author.id instead of author.author_serial -->
+                <li><a href="{% url 'author_profile' author.id %}">Home</a></li>
+                <li><a href="{% url 'author-about' author.id %}">About</a></li>
+                <!-- <li><a href="#">Photo</a></li>
+                <li><a href="#">Video</a></li> -->
+                {% if request.user.author_serial == author.author_serial %}
+                    <li><a href="{% url 'user-settings' author.id %}">Settings</a></li>
+                    <!-- Only show logout when viewing own profile -->
+                    <li>
+                        <form action="{% url 'logout' %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="logout-button">Logout</button>
+                        </form>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <!-- Main content area-->
+        <div class="main-content">
+            {% block content %}
+            {% endblock content %}
+        </div>
+    </div>
+    <script>
+        function getToken(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0,name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+                }
+            }
+            }
+            return cookieValue;
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const followForm = document.querySelector('.follow-form');
+
+            if (followForm) {
+                const authorId = followForm.getAttribute('data-author-author_serial');
+                const actorId = followForm.getAttribute('data-actor-author_serial');
+                const Button = followForm.querySelector('button');
+                //Hide follow and unfollow buttons if the profile page belongs to the logged-in user
+                if (authorId === actorId) {
+                    Button.style.display = 'none';
+                }
+            }
+        });
+        const currentHost = window.location.origin;
+        const csrftoken = getToken('csrftoken');
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.follow-button').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const form = button.closest('.follow-form');
+                    
+                    const authorId = form.getAttribute('data-author-author_serial');
+                    const authorFQID = form.getAttribute('data-author-id');
+                    const authorName = form.getAttribute('data-author-name');
+                    const authorHost = form.getAttribute('data-author-host');
+                    const authorGithub = form.getAttribute('data-author-github')
+                    const authorProfileImage = form.getAttribute('data-author-profile-image');
+
+                    const actorId = form.getAttribute('data-actor-author_serial');
+                    const actorFQID = form.getAttribute('data-actor-id');
+                    const actorName = form.getAttribute('data-actor-name');
+                    const actorHost = form.getAttribute('data-actor-host');
+                    const actorGithub = form.getAttribute('data-actor-github');
+                    const actorProfileImage = form.getAttribute('data-actor-profile-image');
+
+                    //Construct the follow request object
+                    const followRequest = {
+                        "type": "follow",
+                        "summary": `${actorName} wants to follow ${authorName}`,
+                        "actor": {
+                            "type": "author",
+                            "id": actorFQID, 
+                            "host": actorHost,
+                            "displayName": actorName,
+                            "github": actorGithub,
+                            "profileImage": actorProfileImage,
+                            "page": `${actorHost}authors/${actorId}`
+                        },
+                        "object": {
+                            "type": "author",
+                            "id": authorFQID, 
+                            "host": authorHost,
+                            "displayName": authorName,
+                            "page": `${authorHost}authors/${authorId}`,
+                            "github": authorGithub,  
+                            "profileImage": authorProfileImage  
+                        }
+                    };
+                    console.log("Follow Request Object:", followRequest);
+                    if (followRequest.actor.host === followRequest.object.host) {
+                        const inboxUrl = `${authorFQID}/inbox`;
+                        console.log("Attempting to send request to:", inboxUrl);
+                        //Send the follow request to the author's inbox
+                        fetch(inboxUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrftoken
+                            },
+                            body: JSON.stringify(followRequest)
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("Response data:", data);
+                            if (data.message) {
+                                alert("Follow request sent successfully!");
+                                location.reload();
+                            } else {
+                                alert("Failed to send follow request.");
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
+                    else{
+                        url = currentHost + '/api/forwardFollowRequest';
+                        console.log("Forwarding follow request to:", url);
+                        payload = {
+                            "actor":{"id":actorFQID,},
+                            "object":{"id":authorFQID,},
+                        }
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrftoken
+                            },
+                            body: JSON.stringify(payload)
+                        })
+                    }
+                    
+
+                    
+                    
+                });
+                
+            });
+            document.querySelectorAll('.unfollow-button').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const form = button.closest('.follow-form');
+                    const actorId = form.getAttribute('data-actor-author_serial');
+                    const authorFQID = form.getAttribute('data-author-id');
+                    
+                    const unfollowUrl = `/api/authors/${actorId}/followers/${encodeURIComponent(authorFQID)}/`;
+                    console.log("Unfollow URL:", unfollowUrl);  // Log the URL to check if it matches the expected pattern
+
+
+                    fetch(unfollowUrl, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken  
+                        }
+                    })
+                    .then(response => {
+                        console.log("Response status:", response.status); 
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        alert("Unfollowed successfully!");
+                        location.reload();
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+            });
+        })
+    </script>
+</body>
+</html>

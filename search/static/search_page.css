@@ -1,0 +1,343 @@
+body {
+    background-color: #f8eac7;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    animation: backgroundGlow 5s infinite alternate;
+}
+
+@keyframes backgroundGlow {
+    0% { background-color: #f8eac7; }
+    100% { background-color: #ffe4b2; }
+}
+
+.header {
+    background: linear-gradient(90deg, #3e305e, #5a00a3);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border-bottom: 4px solid #a886ff;
+    border-radius: 0 0 15px 15px;
+}
+
+.headerUserInfo {
+    display: flex;
+    flex-direction: row;
+}
+
+.currentUser {
+    margin-left: 10px;
+    color: #a886ff;
+    font-size: x-large;
+    text-shadow: 1px 1px 2px #000000;
+}
+
+.header .icons-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #4F378A;
+    padding: 10px 20px;
+    border-radius: 15px;
+    border: 2px solid #a886ff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 1.5s ease;
+}
+
+.header .icons-container .button {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #a886ff, #5a00a3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 2px solid #3e305e;
+}
+
+.header .icons-container .button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(168, 134, 255, 0.7);
+}
+
+.icon {
+    width: 25px;
+    height: 25px;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.search-bar {
+    width: 300px;
+    padding: 8px;
+    font-size: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+}
+
+.search-button {
+    padding: 9px 16px;
+    font-size: 12px;
+    background-color: #5a00a3;
+    color: white;
+    border:none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.search-button:hover {
+    background-color: #3f0069;
+}
+
+
+
+.search-results {
+    text-align: left;
+    padding-left: 40px;
+    font-size: 24px; 
+    margin-bottom: 20px; 
+    font-weight: bold; 
+    color: #000000; 
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+
+}
+.search-results:hover {
+    color: #4F378A; 
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+}
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.result-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.result-box:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+    background-color: #f5f5f5; 
+}
+
+.profile-image-container {
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.user-info h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+
+
+
+
+
+body {
+    background-color: #f8eac7;
+    font-family: Arial;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    background-color: #3e305e;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header .icons {
+    display: flex;
+    gap: 50px;
+    padding-right: 90px;
+}
+
+.icon {
+    width: 25px;
+    height: 25px;
+}
+
+.post-container {
+    width: 60%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.post {
+    background-color: #D9D9D9;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.username {
+    font-weight: bold;
+    margin: 0;
+    margin-left: 10px;
+}
+
+.date-posted {
+    color: gray;
+    font-size: 0.9em;
+    margin: 0;
+    margin-left: 10px;
+}
+
+.follow-btn {
+    color: #4F378A;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 20px;
+}
+
+.post-content {
+    margin: 10px;
+}
+
+.content{
+    font-size: 1.3em;
+}
+.image-placeholder {
+    width: 100%;
+    height: 200px;
+    background-color: #4F378A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.image-placeholder img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 10px;
+}
+
+.post-footer {
+    margin: 10px;
+}
+
+.interactions {
+    display: flex;
+    gap: 10px;
+    color: gray;
+    margin-bottom: 5px;
+}
+
+.interactions-text {
+    padding-top: 5px;
+}
+.stats {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    color: #4F378A;
+}
+
+.stats a {
+    text-decoration: none;
+    padding-left: 20px;
+}
+
+.visibility-tag {
+    padding: 3px 6px;
+    font-size: 12px;
+    border-radius: 3px;
+    color: white;
+    font-weight: bold;
+}
+
+.public {
+    background-color: green;
+}
+
+.friends-only {
+    background-color: blue;
+}
+
+.unlisted {
+    background-color: orange;
+}
+
+.deleted {
+    background-color: red;
+    text-decoration: line-through;
+}
+
+.post-visibility {
+    margin-left: 20px;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.search-bar {
+    width: 300px;
+    padding: 8px;
+    font-size: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+}
+
+.search-button {
+    padding: 9px 16px;
+    font-size: 12px;
+    background-color: #5a00a3;
+    color: white;
+    border:none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+}
+
+.search-button:hover {
+    background-color: #3f0069;
+}

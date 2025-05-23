@@ -1,0 +1,117 @@
+{% extends 'author/author_base.html' %}
+{% load static %}
+{% block content %}
+<!-- Block to display messages -->
+{% if messages %}
+    <div class="message-container">
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    <script>
+        //Show a popup window with the message
+        window.onload = function() {
+            let messages = document.querySelectorAll('.message');
+            if (messages.length > 0) {
+                let messageText = messages[0].innerText;
+                alert(messageText); //Show an alert popup with the message
+
+                //Redirect after displaying the popup
+                setTimeout(function() {
+                    window.location.href = "{{ redirect_url }}";
+                }, 1000); //Time 1 second
+            }
+        }
+    </script>
+{% endif %}
+
+<div class="settings-container">
+    <h2>Edit Profile Info</h2>
+    <form id="profileForm">
+        {% csrf_token %}
+        
+        <!-- Render the form fields manually if needed -->
+        <label for="displayName">Display Name:</label>
+        <input type="text" id="displayName" name="displayName" value="{{ author.displayName }}" required>
+
+        <label for="github">GitHub:</label>
+        <input type="text" id="github" name="github" value="{{ author.github }}">
+
+        <label for="page">Page:</label>
+        <input type="text" id="page" name="page" value="{{ author.page }}">
+
+        <label for="profileImage">Profile Image:</label>
+        <input type="file" id="profileImage" name="profileImage">
+
+        <button type="submit">Save Changes</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('profileForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        //Collect form data
+        const displayName = document.getElementById('displayName').value;
+        const github = document.getElementById('github').value;
+        const page = document.getElementById('page').value;
+
+        const profileImageFile = document.getElementById('profileImage').files[0];
+        let profileImageUrl = null;
+
+        if (profileImageFile) {
+            const formData = new FormData();
+            formData.append('file', profileImageFile);
+
+            try {
+                //Upload the image to server 
+                const uploadResponse = await fetch('/api/upload-profile-image/', {  
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error('Image upload failed');
+                }
+
+                const uploadData = await uploadResponse.json();
+                profileImageUrl = uploadData.url; 
+            } catch (error) {
+                alert('Failed to upload profile image: ' + error.message);
+                return;
+            }
+        }
+
+        // Prepare JSON payload
+        const payload = {
+            displayName,
+            github,
+            page,
+            profileImage: profileImageUrl 
+        };
+
+        // Send PUT request to the API as JSON
+        try {
+            const response = await fetch(`/api/authors/{{ author.author_serial }}/`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token for security
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Profile updated successfully');
+                window.location.href = "{{ redirect_url }}";  // Redirect after successful update
+            } else {
+                alert(data.error || 'An error occurred while updating the profile');
+            }
+        } catch (error) {
+            alert('An error occurred: ' + error.message);
+        }
+    });
+</script>
+
+{% endblock %}

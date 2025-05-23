@@ -1,0 +1,108 @@
+{% extends 'author/author_base.html' %}
+{% load static %}
+{% block content %}
+<div class="feed-header">
+    <h1>{{ author.displayName }}'s posts</h1>
+</div>
+<div class="posts-container">
+    {% if posts %}
+        {% for post in posts %}
+            <div class="post-box" id="post-{{ post.uuid }}">
+                <!-- 1st row: Profile info and action buttons -->
+                <div class="post-header">
+                    <div class="profile-info">
+                        {% if author.profileImage %}
+                            <img class="profile-pic-small" src="{{ author.profileImage }}">
+                        {% else %}
+                            <img class="profile-pic-small" src="{% static 'avatar.png' %}">
+                        {% endif %}
+                        <div class="author-name-date">
+                            <h4>{{ author.displayName }}</h4>
+                            <p>{{ post.published|date:"F j, Y, g:i a" }}</p>
+                        </div>
+                    </div>
+                    <!-- Check if the logged-in user is the post author or an admin -->
+                    {% if request.user.author_serial == post.author.author_serial or user.is_superuser %}
+                    <div class="action-buttons">
+                        <form method="POST" action="{% url 'delete_post' request.user.author_serial post.uuid %}" class="delete-form" data-post-id="{{ post.uuid }}">
+                            {% csrf_token %}
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="delete-button">Delete</button>
+                        </form>
+                        <a href="{% url 'view_edit_post' post.id %}" class="edit-button">Edit</a>  
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Title of the post -->
+                <div class="post-title">
+                    <h3>{{ post.title }}</h3>
+                </div>
+
+                <!-- 2nd row: Image if exists -->
+                {% if post.contentType == "image/png;base64" or post.contentType == "image/jpeg;base64" %}
+                <div class="post-image">
+                    <img src="{{ post.content }}" alt="Uploaded Image" style="max-width: 100%; height: auto;">
+                </div>
+                {% elif post.contentType == "text/markdown" %}
+                    <div class="content markdown-content" data-content="{{ post.content }}" id="markdown-content-{{ post.uuid }}"></div>
+                {% else %}
+                <!-- 3rd row: Content of the post -->
+                <div class="post-content">
+                    <p>{{ post.content }}</p>
+                </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>{{ author.displayName }} hasn't posted anything yet.</p>
+    {% endif %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Render Markdown content
+        document.querySelectorAll('.markdown-content').forEach(function (element) {
+            const markdownContent = element.getAttribute('data-content').trim();
+            const cleanedContent = markdownContent.replace(/\\u000D|\\u000A/g, "");
+            if (cleanedContent) {
+                element.innerHTML = marked.parse(cleanedContent);
+            }
+        });
+
+        // Handle delete button click with AJAX
+        document.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', async function (event) {
+                event.preventDefault();
+                const form = button.closest('.delete-form');
+                const postId = form.getAttribute('data-post-id');
+                const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (response.ok) {
+                        // Remove the post element from the DOM
+                        const postElement = document.getElementById(`post-${postId}`);
+                        if (postElement) {
+                            postElement.remove();
+                        }
+                    } else {
+                        const result = await response.json();
+                        alert(result.error || 'An error occurred while trying to delete the post.');
+                    }
+                } catch (error) {
+                    console.error("Error deleting post:", error);
+                    alert('An unexpected error occurred.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

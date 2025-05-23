@@ -1,0 +1,481 @@
+body {
+   background-color: #f8eac7;
+   font-family: Arial, sans-serif;
+   margin: 0;
+   padding: 0;
+   animation: backgroundGlow 5s infinite alternate;
+}
+
+@keyframes backgroundGlow {
+   0% { background-color: #f8eac7; }
+   100% { background-color: #f8eac7; }
+}
+
+.header {
+   background: linear-gradient(90deg, #3e305e, #5a00a3);
+   padding: 15px;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+   border-bottom: 4px solid #a886ff;
+   border-radius: 0 0 15px 15px;
+}
+
+.headerUserInfo {
+   display: flex;
+   flex-direction: row;
+}
+
+.currentUser {
+   margin-left: 10px;
+   color: #a886ff;
+   font-size: x-large;
+   text-shadow: 1px 1px 2px #000000;
+}
+
+.header .icons-container {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   background: #4F378A;
+   padding: 10px 20px;
+   border-radius: 15px;
+   border: 2px solid #a886ff;
+   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+   animation: fadeIn 1.5s ease;
+}
+
+.header .icons-container .button {
+   text-decoration: none;
+   color: white;
+   font-weight: bold;
+   padding: 10px 15px;
+   border-radius: 8px;
+   background: linear-gradient(90deg, #a886ff, #5a00a3);
+   transition: transform 0.2s, box-shadow 0.2s;
+   border: 2px solid #3e305e;
+}
+
+.header .icons-container .button:hover {
+   transform: scale(1.1);
+   box-shadow: 0 4px 15px rgba(168, 134, 255, 0.7);
+}
+
+.icon {
+   width: 25px;
+   height: 25px;
+}
+
+.search-form {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 10px;
+}
+
+.search-bar {
+   width: 300px;
+   padding: 8px;
+   font-size: 12px;
+   border: 1px solid #ccc;
+   border-radius: 4px 0 0 4px;
+}
+
+.search-button {
+   padding: 9px 16px;
+   font-size: 12px;
+   background-color: #5a00a3;
+   color: white;
+   border:none;
+   border-radius: 0 4px 4px 0;
+   cursor: pointer;
+   transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.search-button:hover {
+   background-color: #3f0069;
+}
+
+ .gridContainer {
+    display: grid;  /* enables the grid display */
+    grid-template-rows: 1fr;          /* One row */
+    grid-template-columns: 1fr 1fr;   /* Two columns of equal size */
+    padding: 10px;
+    height: calc(100vh - 120px);  /* 100% height minus the header */
+    border-radius: 10px;
+   
+ }
+ /* User Section */
+ .gridItemUser{
+    background-color: #f8eac7; /* #f8eac7 */
+    padding-left: 30px;
+    padding-right: 30px;
+    font-size: 30px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    color: #000000;
+    width: 680px;
+ }
+ .gridItemUser .userInfo{
+    background-color: #f8eac7;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    margin-bottom: 2rem;
+    margin-top: 2rem;
+ }
+ .userInfo .delete-button {
+    background-color: #f8eac7;
+    border: #f8eac7;
+    margin-left: 20px;
+ }
+ .trash {
+    width: 30px;
+    background-image: url("../../static/trash.png");
+    background-size: cover;
+    transition: transform 0.3s ease, background-image 0.3s ease;
+ }
+ .trash:hover {
+    transform: scale(1.1);
+    background-image: url("../../static/trashFilled.png");
+ }
+ .userInfo .profileImage{
+    height: 50px;
+    width: 50px;
+    margin-top: 8px;
+    margin-left: 8px;
+    margin-bottom: 8px;
+    margin-right: 4px;
+ }
+ .userInfo .username{
+    font-size: 20px;
+    margin-bottom: 10px;
+    margin-left: 8px;
+    text-decoration: none;
+    color:#4F378A;
+ }
+ .userInfo .username:hover{
+   font-size: 20px;
+   margin-bottom: 10px;
+   margin-left: 8px;
+   text-decoration: none;
+   color: #a886ff;
+}
+ .userInfo .postDate{
+    font-size: 20px;
+    margin: 0;
+    margin-left: 8px;
+    font-weight: 100;
+    color: #666;
+ }
+ .userInfo .followButton{
+    height: 40px;
+    margin: 10px;
+    margin-left: 20px;
+    background-color: #f8eac7;
+    border: #f8eac7;
+    font-size: medium;
+    color: #3e305e;
+ }
+ 
+ .commentAreaTitle{
+   color: #3e305e;
+   margin: 10px;
+   width: 100%;
+}
+ .gridItemUser .postTitle{
+   font-family: 'Arial', sans-serif; /* Clean and modern font */
+   font-size: 32px; /* Standout font size */
+   font-weight: bold; /* Strong emphasis */
+   color: #3e305e;
+   text-align: center;
+   margin-bottom: 1rem; /* Space between title and content */
+   margin-top: 0px;
+   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Soft text shadow */
+   padding: 10px; /* Add some padding */
+   background-color: #f5e3c6; /* Subtle background color to differentiate title */
+   border-radius: 10px; /* Rounded corners to match your overall theme */
+   display: inline-block; /* Keeps the title styled like a button */
+   border: 2px solid #bdbdbd;
+ }
+ .gridItemUser .postContent {
+   background-color: #F5DEAE;
+   margin: 0;
+   margin-bottom: 15px;
+   padding-left: 10px;
+   padding-right: 10px;
+   border-radius: 10px;
+   padding: 15px;
+   border: 1px solid #F5DEAE;
+   font-size: 18px;
+   line-height: 1.6;
+   color: #000000;
+   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow effect */
+}
+
+ .postContent img.postImage{
+    width: 100%; /* Scale the image to fit the container */
+    max-width: 500px; /* Set a max width for large images */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Avoid inline elements from having extra margins */
+    margin: 0 auto; /* Center the image if needed */
+ }
+ .gridItemUser .likeCommentShare{
+    display: flex;
+    height: 40px;
+    background-color: #f5e3c6;
+    border-radius: 10px;
+    padding: 10px 15px;
+    border: 1px solid #d7c7a3;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #000000;
+    margin-bottom: 1rem;
+ }
+ .likeCommentShare img{
+    height: 30px;
+    width: 30px;
+    background-color: #f5e3c6;
+ }
+ .likeCommentShare img.commentBubble{
+    height: 30px;
+    width: 30px;
+    margin: 10px;
+    background-color: #f5e3c6;
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transition */
+ }
+ .likeCommentShare img.commentBubble:hover {
+    transform: scale(1.1); /* Slightly enlarges the icon on hover */
+    content: url("../../static/messageCircleFilled.png"); /* Changes the image to the filled version */
+ }
+ .likeCommentShare img.heart {
+    height: 30px;
+    width: 30px;
+    margin: 10px;
+    background-color: #f5e3c6;
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transition */
+ }
+ .likeCommentShare img.heart:hover {
+    transform: scale(1.1); /* Slightly enlarges the icon on hover */
+    background-color: #f5e3c6;
+    content: url("../../static/heartFilled.png"); /* Changes the image to the filled version */
+ }
+ .likeCommentShare img.share-button{
+   height: 30px;
+   width: 30px;
+   margin: 10px;
+   transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transition */
+}
+.likeCommentShare img.share-button:hover {
+   transform: scale(1.1); /* Slightly enlarges the icon on hover */
+}
+.likeCommentShare .repost-button {
+   transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transition */
+}
+.likeCommentShare .repost-button:hover {
+   transform: scale(1.1); /* Slightly enlarges the icon on hover */
+}
+ .likeCommentShare h3{
+    font-size: 20px;
+    margin-right: 20px;
+    font-weight: 100;
+    color: #9C9B9B;
+ }
+ .like-button{
+    background-color: #f5e3c6;
+    border-color: #f5e3c6;
+    border-style: none;
+ }
+ .comment-button {
+    background-color: #f5e3c6;
+    border-color: #f5e3c6;
+    border-style: none;
+ }
+ 
+ 
+ .gridItemUser .viewLikesComments{
+    background-color: #f8eac7;
+    display: flex;
+    flex-direction: row;
+ }
+ .viewLikesComments .viewComments{
+    color: #9C9B9B;
+    font-weight: 100;
+    font-size: 25px;
+    margin: 10px;
+ }
+ .likeCommentShare .viewLikes{
+    color:#4F378A;
+    font-weight: 100;
+    font-size: 20px;
+    text-decoration: none;
+ }
+ .likeCommentShare .viewLikes:hover{
+    color:#a886ff;
+    font-weight: 100;
+    font-size: 20px;
+    text-decoration: underline;
+    text-decoration: none;
+ }
+ 
+ .commentContainer{
+   position: sticky; /* Makes it sticky */
+   top: 10px; /* Distance from the top of the viewport */
+   /* z-index: 10; Ensure it's above other elements */
+ }
+
+ /* Comment Section */
+ .gridItemComments {
+    position: fixed; /* Makes the container fixed in the viewport */
+    top: 14%; /* Distance from the top of the viewport */
+    right: 10px; /* Distance from the right side of the viewport */
+    background-color: #F5DEAE;
+    padding: 20px;
+    font-size: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align items to the top */
+    align-items: center;
+    text-align: center;
+    width: 650px;
+    border-radius: 25px;
+    margin-left: 10px;
+    margin-right: 0;
+    margin-top: 2rem;
+    height: 530px;
+    transform: translateX(100%);
+    opacity: 1;
+    transition: transform 1.0s ease-in-out, opacity 1.5s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1); /* Added box-shadow */
+    z-index: 1000; /* Ensures the container stays on top of other elements */
+}
+ 
+ .gridItemComments.active {
+   transform: translateX(0);
+   opacity: 1;
+ }
+ 
+ .carousel {
+    height: calc(100% - 120px); /* Fill the height of the comments section */
+    width: 100%;
+    overflow-y: auto; /* Allow vertical scrolling */
+    padding: 10px; /* Optional padding */
+    border-radius: 5px; /* Rounded corners */
+    margin-bottom: 10px;
+ }
+ 
+ 
+ .carousel-container {
+    display: flex;
+    flex-direction: column; /* Stack comments vertically */
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+ }
+ 
+ 
+ .comment {
+    background-color: #F5DEAE; /* Background color for comments */
+    padding: 10px; /* Padding for comments */
+    margin: 5px 0; /* Space between comments */
+    border-radius: 5px; /* Rounded corners */
+    display: flex;
+    flex-direction: row;
+ }
+ .commentProfileImage{
+    margin: 6px;
+    height: 40px;
+    width: 40px;
+ }
+ .commentUsername{
+    margin: 4px;
+    font-weight: 100;
+    text-align: left;
+ }
+ .commentDate {
+   font-size: 0.9em; /* Slightly smaller font size for the date */
+   color: #666; /* Optional: subtle color for the date */
+   margin-left: 10px;
+}
+ .commentContent{
+    margin-left: 4px;
+    color: #000000;
+    text-align: left;
+    width: fit-content;
+    max-width: 500px;
+    word-wrap: break-word;
+ }
+ 
+ 
+ .commentInput {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+ }
+ /* Flexbox for aligning input fields and button */
+ .commentInputWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px; /* Adds some space between input fields */
+    margin: 10px;
+ }
+ .commentInputTextbox {
+    background-color: #F5DEAE;
+    border-color: #F5DEAE;
+    border-style: none;
+    height: 30px;
+    width: 200px;
+    margin: 0;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 16px;
+ }
+ 
+ .commentInputTextbox {
+    width: 500px; /* Adjust this value as needed */
+ }
+ .commentInputSubmit{
+    height: 30px;
+    background-color: #4F378A;
+    border-color: #D9D9D9;
+    border-style: none;
+    color: white;
+    padding: 8px;
+    border-radius: 8px;
+ }
+ .commentInputSubmit:hover{
+    height: 30px;
+    background-color: #8F72D9;
+    border-color: #D9D9D9;
+    border-style: none;
+    color: #000000;
+    padding: 8px;
+    border-radius: 8px;
+ }
+ .markdown-content img {
+   max-width: 100%;
+   height: auto;
+   display: block;
+}
+
+.profile-pic-small {
+   width: 50px;
+   height: 50px;
+   border-radius: 50%;
+   margin-right: 10px;
+}
+
+ .profile-pic {
+   width: 50px;
+   height: 50px;
+   border-radius: 50%;
+   margin-right: 10px;
+   margin-left: 90px;
+
+ }
+
+

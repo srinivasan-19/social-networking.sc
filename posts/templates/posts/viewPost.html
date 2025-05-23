@@ -1,0 +1,759 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'viewPost.css' %}">
+    <title>View Post</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+</head>
+<body>
+
+    <div class="header">
+        <section class="headerUserInfo">
+            <a href="{% url 'author_profile' request.user.author_serial %}"> <!-- Use the logged-in user's author ID -->
+                {% if request.user.profileImage %}
+                    <img src="{{ request.user.profileImage }}" 
+                     style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; margin-left: 90px;">
+                {% else %}
+                    <img src="{% static 'avatar.png' %}" 
+                     style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; margin-left: 90px;">
+                {% endif %}
+            </a>
+            <p class="currentUser">{{ request.user.displayName }}</p>
+        </section>
+        <div class="icons">
+            <a href="{% url 'home_page' %}">
+                <img src="{% static 'home.png' %}">
+            </a>
+            <a href="{% url 'create_post' %}">
+                <img src="{% static 'add_post.png' %}">
+            </a>
+            <a href="{% url 'inbox' %}">
+                <img src="{% static 'inbox.png' %}">
+            </a>
+        </div>
+    </div>
+
+    <section class="gridContainer">
+        <section class="gridItemUser">
+            <div class="userInfo">
+                {% if post.author.profileImage %}
+                    <img src="{{ post.author.profileImage }}" 
+                    style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                {% else %}
+                    <img src="{% static 'avatar.png' %}" 
+                    style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                {% endif %}                
+                <div class="username_DatePosted">
+                    <a class="username" href="{% url 'author_profile' post.author.author_serial %}">{{ post.author.displayName }}</a> <!-- TODO: make the username clickable to go to userProfile-->
+                    <h3 class="postDate">{{post.published}}</h3>
+                </div>
+                <!-- <button class="followButton">Follow</button> -->
+                <!-- Only the author can delete their own posts -->
+                {% if user.author_serial == post.author.author_serial %}
+                    <form action="{% url 'delete_post' request.user.author_serial post.uuid %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="_method" value="DELETE"> <!--IMPORTANT: Walk around for delete method-->
+                        <button style="margin-top: 20px; background-color: #f8eac7; border-color: #f8eac7; border-style: none;" type="submit" class="delete-button">
+                            <img style="width: 30px; height: 30px;" class="trash" src="{% static 'trash.png' %}">
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+            <h1 class="postTitle">{{post.title}}</h1>
+            <div class="postContent">
+                {% if post.contentType == "text/plain" %}
+                    {{ post.content }}
+                {% elif post.contentType == "text/markdown" %}
+                    <div id="markdown-content-{{ post.uuid }}" class="markdown-content" data-content="{{ post.content }}"></div>
+                {% elif post.contentType == "image/png;base64" or post.contentType == "image/jpeg;base64" or post.contentType == "application/base64" %}
+                    <img src="{{ post.content }}" alt="Post Image" class="postImage">
+
+                {% else %}
+                    {{ post.content }}
+                {% endif %}        
+            </div>
+            <section class="likeCommentShare">
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const currentHost = window.location.host;
+                        const postAuthorHost = "{{ post.author.host }}".split('/').pop();
+                    
+                        const sameHostForm = document.querySelector('#sameHostForm');
+                        const differentHostForm = document.querySelector('#differentHostForm');
+                    
+                        if (sameHostForm && differentHostForm) {
+                            if (currentHost === postAuthorHost) {
+                                sameHostForm.style.display = 'block';
+                                differentHostForm.style.display = 'none';
+                            } else {
+                                sameHostForm.style.display = 'none';
+                                differentHostForm.style.display = 'block';
+                            }
+                        }
+                    
+                        // Helper function to get CSRF token
+                        function getToken(name) {
+                            let cookieValue = null;
+                            if (document.cookie && document.cookie !== '') {
+                                const cookies = document.cookie.split(';');
+                                for (let i = 0; i < cookies.length; i++) {
+                                    const cookie = cookies[i].trim();
+                                    if (cookie.startsWith(name + '=')) {
+                                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                        break;
+                                    }
+                                }
+                            }
+                            return cookieValue;
+                        }
+                    
+                        const csrfToken = getToken('csrftoken');
+                    
+                        // Function to handle submission for the same host form
+                        function handleSameHostFormSubmit(event) {
+                            console.log("LOGIC 1 REACHED - Same Host Form");
+                            event.preventDefault(); // Prevent default form submission
+                    
+                            const form = event.target; // Reference to the form that was submitted
+                            const formData = new FormData(form);
+                            const payload = {};
+                            
+                            formData.forEach((value, key) => {
+                                payload[key] = value;
+                            });
+                    
+                            // Create the like object
+                            fetch(form.action, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': csrfToken
+                                },
+                                body: JSON.stringify(payload)
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! Status: ${response.status}`);
+                                }
+                                return response.json();
+                            })
+                            .then(like => {
+                                console.log("Created Like Object:", like);
+                    
+                                // Construct the inbox request payload
+                                const inboxRequest = like;
+                    
+                                // Get the receiver ID (for same host form)
+                                const receiverId = form.querySelector('input[name="receiver_id"]')?.value || "{{ post.author.author_serial }}";
+                    
+                                const inboxUrl = `${window.location.origin}/inbox/api/authors/${receiverId}/inbox/`;
+                    
+                                // Send the like object to the author's inbox
+                                fetch(inboxUrl, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': csrfToken
+                                    },
+                                    body: JSON.stringify(inboxRequest)
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`HTTP error! Status: ${response.status}`);
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log("Inbox Response Data:", data);
+                                    alert("Like sent to inbox successfully!");
+                                })
+                                .catch(error => console.error('Inbox Error:', error));
+                            })
+                            .catch(error => console.error('Like Creation Error:', error));
+                        }
+                    
+                        // Function to handle submission for the different host form
+                        function handleDifferentHostFormSubmit(event) {
+                            console.log("LOGIC 1 REACHED - Different Host Form");
+                        }   
+                        // Attach submit event listener to both forms separately
+                        if (sameHostForm) {
+                            sameHostForm.addEventListener('submit', handleSameHostFormSubmit);
+                        }
+                    
+                        if (differentHostForm) {
+                            differentHostForm.addEventListener('submit', handleDifferentHostFormSubmit);
+                        }
+                    });
+                </script>
+                
+                    
+                    <!-- Forms -->
+                    <form id="sameHostForm" action="{% url 'api_create_like' post.author.author_serial %}" method="POST" style="display: none;">
+                        {% csrf_token %}
+                        
+                        <input type="hidden" name="post_id" value="{{ post.uuid }}">
+                        <input type="hidden" name="type" value="like">
+                        <input type="hidden" name="comment_id" value="">
+                        <button type="submit" class="like-button">
+                            <img class="heart" src="{% static 'heart.png' %}" alt="Like">
+                        </button>
+                    </form>
+                    
+                    <form id="differentHostForm" action="{% url 'forward_like_request' %}" method="POST" style="display: none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="receiver_id" value="{{ post.author.id }}">
+                        <input type="hidden" name="post_id" value="{{ post.uuid }}">
+                        <input type="hidden" name="type" value="like">
+                        <input type="hidden" name="comment_id" value="">
+                        <button type="submit" class="like-button">
+                            <img class="heart" src="{% static 'heart.png' %}" alt="Like">
+                        </button>
+                    </form>
+                    
+                <a class="viewLikes" href="{% url 'api_likes' author_serial=post.author.author_serial post_id=post.uuid %}">{{ post.likes.count }} like(s)</a>
+                <a type="submit" class="comment-button" href="#comment-input">
+                    <img class="commentBubble"src="/static/messageCircle.png">
+                </a>
+                <h3 id="commentAmount">{{ post.comments.count }} comment(s)</h3>
+                {% if post.visibility != "UNLISTED" and post.visibility != "FRIENDS" %}
+                    <img class="share-button" id="share-image" src="/static/share.png" alt="Share">
+                    <h3>share</h3>
+                    <!-- <form id="repostForm" method="POST" >
+                        {% csrf_token %}
+                        <button type="button" onclick="showRepostOptions()" style="background: none; border: none; color: blue; cursor: pointer;">
+                            <h3 class="repost-button">Repost</h3>
+                        </button>
+                    </form> -->
+                    
+                    <!-- Modal for repost options -->
+                    <div id="repostModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); border:1px solid black; background-color:white; padding:20px; z-index:1000;">
+                        <h4>Choose Repost Option:</h4>
+                        <button onclick="submitRepost('link')">Link</button>
+                        <button onclick="submitRepost('post')">Post</button>
+                        <button onclick="closeModal()">Cancel</button>
+                    </div>
+                    
+                    <!-- Overlay -->
+                    <div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0, 0, 0, 0.5); z-index:999;"></div>
+                    
+                    <script>
+                    function showRepostOptions() {
+                        document.getElementById('repostModal').style.display = 'block';
+                        document.getElementById('overlay').style.display = 'block';
+                    }
+                    
+                    function closeModal() {
+                        document.getElementById('repostModal').style.display = 'none';
+                        document.getElementById('overlay').style.display = 'none';
+                    }
+                    
+                    function submitRepost(type) {
+                        const form = document.getElementById('repostForm');
+                        
+                        // Change action based on the selected option
+                        if (type === 'link') {
+                            form.action = "{% url 'repost_link' post.uuid %}"; // Change action to repost_link
+                        } else {
+                            form.action = "{% url 'repost_post' post.uuid %}"; // Default action for repost_post
+                        }
+                        
+                        form.submit(); // Submit the form
+                    }
+                    </script>
+                {% endif %}
+                
+                
+
+                
+            </section>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    // const gridItemUser = document.querySelector('.gridItemUser');
+                    const gridItemComments = document.querySelector('.gridItemComments');
+
+                    // if (gridItemUser) {
+                    //     setTimeout(() => {
+                    //     gridItemUser.classList.add('active');
+                    //     }, 0); // Delay for a staggered effect (optional)
+                    // }
+
+                    if (gridItemComments) {
+                    setTimeout(() => {
+                    gridItemComments.classList.add('active');
+                    }, 0); // Optional slight delay for dramatic effect
+                }
+                });
+            </script>
+            <!-- <section class="viewLikesComments">
+                <a href="{% url 'api_likes' author_serial=post.author.author_serial post_id=post.uuid %}" class="viewLikes">view likes</a>
+            </section> -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const shareImage = document.getElementById('share-image');
+                    
+                    shareImage.addEventListener('click', function () {
+                        const postUrl = window.location.href;  // Get the current post URL
+            
+                        // Check if the Web Share API is supported
+                        if (navigator.share) {
+                            navigator.share({
+                                title: document.title, // Use the page title or post title
+                                text: 'Check out this post!',
+                                url: postUrl
+                            }).then(() => {
+                                console.log('Post shared successfully!');
+                            }).catch((error) => {
+                                console.error('Error sharing the post:', error);
+                            });
+                        } else {
+                            // Fallback for browsers that don't support the Web Share API
+                            const tempInput = document.createElement('input');
+                            document.body.appendChild(tempInput);
+                            tempInput.value = postUrl;
+                            tempInput.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(tempInput);
+                            alert('Post link copied to clipboard!');
+                        }
+                    });
+                });
+            </script>
+        </section>
+        <section class="gridItemComments">
+            <h3 class="commentAreaTitle">Comments</h3>
+            <div class="carousel">
+                <ol class="carousel-container">
+                    <!-- JavaScript will populate comments -->
+                </ol>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                // const gridItemComments = document.querySelector('.gridItemComments');
+                // if (gridItemComments) {
+                //     setTimeout(() => {
+                //     gridItemComments.classList.add('active');
+                //     }, 0); // Optional slight delay for dramatic effect
+                // }
+
+                    // const currentHost = window.location.origin;
+                    // const post_host = ""
+
+                    // if (currentHost === post_host || (post_host === "http://localhost/api" && currentHost === "http://127.0.0.1:8000" )){  // object_author is on the current host server
+                    //     loadComments();
+                    //     console.log("load comments for the local post");
+                    // } else {    // comment needs to be forwarded to remote node
+                    //     loadRemoteComments();
+                    //     console.log("loading comments for the remote post");
+                    // }
+                    loadComments();
+                });
+
+                function loadComments() {
+                    const url = `/api/authors/${encodeURIComponent("{{ author.author_serial }}")}/posts/${encodeURIComponent("{{ post.uuid }}")}/comments`; 
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            const commentsContainer = document.querySelector('.carousel-container');
+                            commentsContainer.innerHTML = ''; // Clear existing comments
+                            data.src.forEach(comment => {
+                                const commentElement = createCommentElement(comment);
+                                commentsContainer.appendChild(commentElement);
+                            });
+                        })
+                        .catch(error => console.error('Error loading comments:', error));
+                }
+
+                function loadRemoteComments() {
+                    const currentHost = window.location.origin;
+                    const post_host = "{{post.author.host}}"
+                    const postFQID = "{{post.id}}";
+
+                    const url = `${post_host}/api/posts/${postFQID}/comments`;
+                    console.log("retrieving remote comments from: ", url)
+                    fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Data received: ", data);
+                        
+                        // Check if the response has 'items' and it's an array
+                        if (data && Array.isArray(data.items)) {
+                            const commentsContainer = document.querySelector('.carousel-container');
+                            commentsContainer.innerHTML = ''; // Clear existing comments
+
+                            // Loop through the comments array and create the comment elements
+                            data.items.forEach(comment => {
+                                const commentElement = createCommentElement(comment);
+                                commentsContainer.appendChild(commentElement);
+                            });
+                        } else {
+                            console.error("Invalid data structure or no comments found.");
+                        }
+                    })
+                    .catch(error => console.error('Error loading comments:', error));
+                }
+
+                function createCommentElement(comment) {
+                    const commentDiv = document.createElement('div');
+                    commentDiv.classList.add('comment');
+
+                    const img = document.createElement('img');
+                    img.classList.add('profile-pic-small');
+                    if (comment.author.profileImage) {
+                        img.src = comment.author.profileImage;  // Use the URL directly
+                    } else {
+                        img.src = '/static/avatar.png';  // Fallback to default avatar
+                    }
+
+
+                    const h5 = document.createElement('h5');
+                    h5.classList.add('commentUsername');
+                    h5.textContent = comment.author.displayName;
+
+                    const span = document.createElement('span')
+                    span.classList.add('commentDate')
+                    span.textContent = new Date(comment.published).toLocaleDateString();
+
+                    const contentDiv = document.createElement('div');
+                    contentDiv.classList.add('commentContent');
+                    contentDiv.textContent = comment.comment;
+                
+                    // Determine hosts for form handling
+                    const currentHost = window.location.host;
+                    const commentAuthorHost = comment.author.host.split('/').pop(); // Extract host part
+
+                    console.log("Current Host:", currentHost);
+                    console.log("Comment Author Host:", commentAuthorHost);
+
+                    // Create like form for same host
+                    const sameHostForm = document.createElement('form');
+                    sameHostForm.setAttribute('method', 'POST');
+                    sameHostForm.style.display = 'none'; // Initially hidden
+
+                    // Action URL for same host form
+                    const uuid = comment.author.id.split('/').pop(); // Extract UUID from author's ID
+                    sameHostForm.setAttribute('action', `/post/api/${uuid}/like/`);
+                    console.log("post author id")
+                    sameHostForm.innerHTML = `
+                        {% csrf_token %}
+                        <input type="hidden" name="type" value="like">
+                        <input type="hidden" name="comment_id" value="${comment.id}">
+                        <input type="hidden" name="post_id" value="">
+                        <button type="submit" class="like-button">
+                            <img class="heart" src="{% static 'heart.png' %}" alt="Like">
+                        </button>
+                    `;
+                    console.log("comment author id")
+                    console.log("comment post author id")
+                    // Create like form for different host
+                    const differentHostForm = document.createElement('form');
+                    differentHostForm.setAttribute('method', 'POST');
+                    differentHostForm.style.display = 'none'; // Initially hidden
+                    differentHostForm.setAttribute('action', '{% url "forward_like_request" %}');
+                    differentHostForm.innerHTML = `
+                        {% csrf_token %}
+                        <input type="hidden" name="comment_id" value="${comment.id}">
+                        <input type="hidden" name="receiver_id" value="${comment.author.id}">
+                        <input type="hidden" name="post_id" value="">
+                        <input type="hidden" name="type" value="like">
+                        <button type="submit" class="like-button">
+                            <img class="heart" src="{% static 'heart.png' %}" alt="Like">
+                        </button>
+                    `;
+
+                    // Check and display the appropriate form
+                    if (currentHost === commentAuthorHost) {
+                        sameHostForm.style.display = 'block';
+                    } else {
+                        differentHostForm.style.display = 'block';
+                    }
+                    // Attach event listener for same host form submission
+                    sameHostForm.addEventListener('submit', function (event) {
+                         // Helper function to get CSRF token
+                         function getToken(name) {
+                            let cookieValue = null;
+                            if (document.cookie && document.cookie !== '') {
+                                const cookies = document.cookie.split(';');
+                                for (let i = 0; i < cookies.length; i++) {
+                                    const cookie = cookies[i].trim();
+                                    if (cookie.startsWith(name + '=')) {
+                                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                        break;
+                                    }
+                                }
+                            }
+                            return cookieValue;
+                        }
+                    
+                        const csrfToken = getToken('csrftoken');
+                        console.log("LOGIC 1 REACHED - Same Host Form");
+                        event.preventDefault(); // Prevent default form submission
+
+                        const form = event.target; // Reference to the form that was submitted
+                        const formData = new FormData(form);
+                        const payload = {};
+
+                        // Convert FormData to JSON
+                        formData.forEach((value, key) => {
+                            payload[key] = value;
+                        });
+
+                        // Create the like object
+                        fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrfToken // Replace with dynamic CSRF token if needed
+                            },
+                            body: JSON.stringify(payload)
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(like => {
+                            console.log("Created Like Object:", like);
+
+                            // Construct the inbox request payload (reuse the like object)
+                            const inboxRequest = like;
+                            // Get the receiver ID
+                            const receiverId = like.author;
+
+                            // Construct the inbox URL dynamically
+                            const inboxUrl = `${window.location.origin}/inbox/api/authors/${receiverId}/inbox/`;
+
+                            // Send the like object to the author's inbox
+                            return fetch(inboxUrl, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': csrfToken // Replace with dynamic CSRF token if needed
+                                },
+                                body: JSON.stringify(inboxRequest)
+                            });
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("Inbox Response Data:", data);
+                            alert("Like sent to inbox successfully!");
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert("An error occurred while processing the like.");
+                        });
+                    });
+
+                    // Construct URL for Viewing Likes
+                    const postUrl = comment.post;
+                    const postUuid = postUrl.split('/').pop(); // Extract post UUID from URL
+                    const decodedUuid = decodeURIComponent(uuid);
+                    const viewLikesLink = document.createElement('a');
+                    // viewLikesLink.href = `/api/authors/${decodedUuid}/posts/${postUuid}/comments/${comment.id}/likes`; // Build the URL dynamically
+                    // viewLikesLink.textContent = 'View Likes';
+                    // viewLikesLink.classList.add('viewLikes');
+
+                    // Append elements to the comment div
+                    commentDiv.appendChild(img);
+                    h5.appendChild(span);
+                    h5.appendChild(contentDiv)
+                    commentDiv.appendChild(h5);
+                    // commentDiv.appendChild(contentDiv);
+                    // commentDiv.appendChild(sameHostForm);
+                    // commentDiv.appendChild(differentHostForm);
+                    // commentDiv.appendChild(viewLikesLink);
+
+                    return commentDiv;
+                }
+            </script>
+            <section class="commentInput">
+                <form id="commentForm" action="{% url 'create_comment' post.uuid %}" method="POST"> <!-- Updated the form action URL to post comments to the appropriate endpoint -->
+                    {% csrf_token %}
+                    <div class="commentInputWrapper">
+                        <input id="comment-input" class="commentInputTextbox" type="text" name="content" placeholder="Add a comment ..." required>
+                        <input class="commentInputSubmit" type="submit" value="Add Comment">
+                    </div>            
+                </form>
+                <script>
+                    function getToken(name) {
+                        let cookieValue = null;
+                        if (document.cookie && document.cookie != '') {
+                        const cookies = document.cookie.split(';');
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i].trim();
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0,name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                            }
+                        }
+                        }
+                        return cookieValue;
+                    }
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const commentForm = document.getElementById('commentForm');
+                        const currentHost = window.location.origin;
+                        const csrftoken = getToken('csrftoken');
+
+                        commentForm.addEventListener('submit', function (event) {
+                            event.preventDefault();
+
+                            // Get the comment content from the input field
+                            const content = document.getElementById('comment-input').value;
+                            const postId = "{{ post.uuid }}";  // Assuming post.uuid is passed to the template context
+                            const authorId = "{{ author.author_serial }}";  // Current user's ID
+                            
+                            // Construct the comment object to send
+                            const commentData = {
+                                "comment": content,
+                                "post": postId,
+                                "author": authorId
+                            };
+
+                            // Send comment creation request to the backend
+                            fetch(commentForm.action, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': csrftoken
+                                },
+                                body: JSON.stringify(commentData)
+                            })
+                            .then(response => {
+                                console.log("response:", response);
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! Status: ${response.status}`);
+                                }
+                                return response.json();
+                            })
+                            .then(comment => {
+                                console.log("Created Comment Object:", comment);
+
+                                // Append the new comment to the DOM
+                                const commentList = document.querySelector('.carousel-container');
+                                const newComment = document.createElement('div');
+                                newComment.classList.add('comment');
+                                newComment.innerHTML = `
+                                    <img src="${comment.author.profileImage || '/static/avatar.png'}" class="profile-pic-small" alt="Profile Picture">
+
+                                    <h5 class="commentUsername">
+                                        ${comment.username}
+                                        <span class="commentDate">${new Date(comment.published).toLocaleDateString()}</span>
+                                        <div class="commentContent">${comment.comment}</div>
+                                    </h5>
+                                `;
+
+                                commentList.prepend(newComment);
+
+                                document.getElementById('comment-input').value = ''; // Clear the input field
+                                const commentAmountElement = document.getElementById('commentAmount');
+                                const currentCount = parseInt(commentAmountElement.innerText) || 0;
+                                commentAmountElement.innerText = (currentCount + 1) + ' comment(s)';
+                                
+                                post_author_id = "{{ post.author.id }}"
+                                post_id = "{{ post.id }}"
+                                    
+                                // Now construct the inbox request payload
+                                const inboxRequest = {
+                                    "type": "comment",
+                                    "author":{
+                                        "type": "author",
+                                        "id": comment.author.id,
+                                        "page": comment.author.page,
+                                        "host": comment.author.host,
+                                        "displayName": comment.author.displayName,
+                                        "github": comment.author.github,
+                                        "profileImage": comment.author.profileImage
+                                    },
+                                    "comment": comment.comment,
+                                    "contentType": "text/markdown",
+                                    "published": comment.published,
+                                    "id": comment.id,
+                                    "uuid": comment.uuid,
+                                    "post": post_id,
+                                    "likes": {
+                                        "type": "likes",
+                                        "page": post_id,
+                                        "id": `${currentHost}/api/authors/${"{{ post.author.author_serial }}"}/posts/${"{{ post.uuid }}"}/comments/${comment.uuid}/likes`,
+                                        "page_number": 1,
+                                        "size": 50,
+                                        "count": 0,
+                                        "src": [],
+                                    },
+                                    "post_author":{
+                                        "id": post_author_id
+                                    }
+                                };
+                                console.log("inbox Request:", inboxRequest);
+
+                                const post_host = "{{post.author.host}}"
+                                console.log("post_host: ", post_host);
+
+                                console.log ("current host: ", currentHost);
+
+                                let forwardUrl;
+
+                                // Send the comment object to the author's inbox
+                                if (currentHost === post_host || (post_host === "http://localhost/api" && currentHost === "http://127.0.0.1:8000" )){  // object_author is on the current host server
+                                    forwardUrl = `${currentHost}/inbox/api/authors/${"{{ post.author.author_serial }}"}/inbox/`;
+                                    console.log("forwarding comment to local URL inbox: ", forwardUrl);
+                                } else {    // comment needs to be forwarded to remote node
+                                    forwardUrl = `${currentHost}/api/post/${"{{ post.id }}"}/viewPost/forward`;
+                                    console.log("forwarding comment to remote URL inbox: ", forwardUrl);
+                                }
+                                console.log("URL to fetch: ", forwardUrl)
+                                fetch(forwardUrl, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': csrftoken
+                                    },
+                                    body: JSON.stringify(inboxRequest)
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`HTTP error! Status: ${response.status}`);
+                                    }
+                                    console.log("first ok");
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log("Inbox Response Data:", data);
+                                    if (data.message) {
+                                        console.log("Comment sent to inbox successfully!");
+                                    } else {
+                                        alert("Failed to send comment to inbox.");
+                                    }
+                                })
+                                .catch(error => console.error('Inbox Error:', error));
+                            })
+                            .catch(error => console.error('Comment Creation Error:', error));
+                        });
+                    });
+                </script>
+            </section>
+        </section>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.markdown-content').forEach(function (element) {
+                const markdownContent = element.getAttribute('data-content').trim();
+                const cleanedContent = markdownContent.replace(/\\u000D|\\u000A/g, "");
+                if (cleanedContent) {
+                    element.innerHTML = marked.parse(cleanedContent);
+                }
+            });
+        });
+    </script>
+</body>

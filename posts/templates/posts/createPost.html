@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'createPost.css' %}">
+    <title>Create New Post</title>
+</head>
+<body>
+    <div class="header">
+        <a href="{% url 'author_profile' author.author_serial %}">
+            {% if author.profileImage %}
+                <img src="{{ author.profileImage }}" 
+                 style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; margin-left: 90px;">
+            {% else %}
+                <img src="{% static 'avatar.png' %}" 
+                 style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; margin-left: 90px;">
+            {% endif %}
+        </a>
+        <div class="icons">
+            <a href="{% url 'home_page' %}">
+                <img src="{% static 'home.png' %}">
+            </a>
+            <a href="{% url 'create_post' %}">
+                <img src="{% static 'add_post.png' %}">
+            </a>
+            <a href="{% url 'inbox' %}">
+                <img src="{% static 'inbox.png' %}">
+            </a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="form-title">Create New Post</div>
+        <form id="save-form" method="POST" enctype="multipart/form-data" action="{% url 'create' request.user.author_serial %}">
+            {% csrf_token %}
+            <div class="form-field-inline">
+                <div class="form-field">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title" placeholder="Enter the title of the post" required>
+                </div>
+                <div class="form-field">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" name="description" placeholder="Enter the description of the post">
+                </div>
+                <div class="form-field">
+                    <label for="visibility">Visibility</label>
+                    <select id="visibility" name="visibility">
+                        <option value="PUBLIC">Public</option>
+                        <option value="UNLISTED">Unlisted</option>
+                        <option value="FRIENDS">Friends-only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-field-inline">
+                <div class="form-field">
+                    <label for="content-type">Content Type</label>
+                    <select id="content-type" name="contentType">
+                        <option value="text/plain">Plain Text</option>
+                        <option value="text/markdown">Markdown</option>
+                        <option value="image/jpeg;base64">Image (JPEG)</option>
+                        <option value="image/png;base64">Image (PNG)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-field" id="text-content-field">
+                <label for="content">Content</label>
+                <textarea id="content" name="content" placeholder="Enter the content of the post"></textarea>
+            </div>
+            <div class="form-field" id="image-upload-field" style="display: none;">
+                <label>Image Upload</label>
+                <div id="image-upload-container">
+                    <span>No Image Uploaded</span>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <label for="img" id="file-upload-label" class="file-upload-label" style="display: none;">
+                    Upload Image
+                </label>
+                <input type="file" id="img" name="img" accept="image/*" style="display: none;">
+                <button type="submit">Post</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('save-form').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(this); // Collect form data
+
+            try {
+                const response = await fetch("{% url 'create' request.user.author_serial %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    // Redirect to home page on successful post creation
+                    window.location.href = "{% url 'home_page' %}";
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.error || 'An error occurred while creating the post.');
+                }
+            } catch (error) {
+                console.error("Error creating post:", error);
+                alert('An unexpected error occurred.');
+            }
+        });
+
+        function toggleContentFields(contentType) {
+            const textContentField = document.getElementById('text-content-field');
+            const imageUploadField = document.getElementById('image-upload-field');
+            const fileUploadLabel = document.getElementById('file-upload-label');
+
+            if (contentType.startsWith('image/')) {
+                textContentField.style.display = 'none';
+                imageUploadField.style.display = 'block';
+                fileUploadLabel.style.display = 'inline-block';
+            } else if (contentType.startsWith('text/')) {
+                imageUploadField.style.display = 'none';
+                textContentField.style.display = 'block';
+                fileUploadLabel.style.display = 'none';
+            }
+        }
+
+        document.getElementById('content-type').addEventListener('change', function(event) {
+            toggleContentFields(event.target.value);
+        });
+
+        toggleContentFields(document.getElementById('content-type').value);
+
+        document.getElementById('img').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const container = document.getElementById('image-upload-container');
+                    container.innerHTML = '';
+                    const imgElement = document.createElement('img');
+                    imgElement.src = e.target.result;
+                    container.appendChild(imgElement);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+
+</body>
+</html>

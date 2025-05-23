@@ -1,0 +1,337 @@
+*{
+    font-family: Arial;
+ }
+ 
+ 
+ html, body {
+    background-color: #f7e8d4;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+ }
+ 
+ 
+ .header {
+   background-color: #3e305e;
+   padding: 15px;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+}
+ 
+ 
+ .header .icons {
+    display: flex;
+    gap: 50px;
+    padding-right: 90px;
+ }
+ 
+ 
+ .gridContainer {
+    display: grid;  /* enables the grid display */
+    grid-template-rows: 1fr;          /* One row */
+    grid-template-columns: 1fr 1fr;   /* Two columns of equal size */
+    padding: 10px;
+    height: calc(100vh - 120px);  /* 100% height minus the header */
+    border-radius: 10px;
+   
+ }
+ /* User Section */
+ .gridItemUser{
+    background-color: #f7e8d4; /* #f8eac7 */
+    padding: 30px;
+    font-size: 30px;
+    /*display: grid; /* enable flexbox */
+    /*grid-template-rows: 4fr;    /* One row */
+   /*grid-template-columns: 1fr;   /* one columns */
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+ }
+ .gridItemUser .userInfo{
+    background-color: #f7e8d4;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    margin-bottom: 10px;
+   
+ }
+ .userInfo .delete-button {
+    background-color: #f7e8d4;
+    border: #f7e8d4;
+    margin: 10px;
+ }
+ .trash {
+    height: 30px;
+    width: 30px;
+    margin: 10px;
+    background-image: url("../../static/trash.png");
+    background-size: cover;
+    transition: transform 0.3s ease, background-image 0.3s ease;
+ }
+ .trash:hover {
+    transform: scale(1.1);
+    background-image: url("../../static/trashFilled.png");
+ }
+ .userInfo .profileImage{
+    height: 50px;
+    width: 50px;
+    margin-top: 8px;
+    margin-left: 8px;
+    margin-bottom: 8px;
+    margin-right: 4px;
+ }
+ .userInfo .username{
+    font-size: 20px;
+    margin-bottom: 10px;
+    margin-left: 8px;
+ }
+ .userInfo .postDate{
+    font-size: 20px;
+    margin: 0;
+    margin-left: 8px;
+    font-weight: 100;
+    color: #9C9B9B;
+ }
+ .userInfo .followButton{
+    height: 40px;
+    margin: 10px;
+    margin-left: 20px;
+    background-color: #f7e8d4;
+    border: #f7e8d4;
+    font-size: medium;
+    color: #3e305e;
+ }
+ 
+ .commentAreaTitle{
+   color: #3e305e;
+   margin: 10px;
+   width: 100%;
+}
+ .gridItemUser .postTitle{
+    background-color: #f7e8d4;
+    color:#000;
+    margin: 10px;
+ }
+ .gridItemUser .postContent{
+    background-color: #f7e8d4;
+    margin: 0;
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 26px;
+ }
+ .postContent img.postImage{
+    width: 100%; /* Scale the image to fit the container */
+    max-width: 500px; /* Set a max width for large images */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Avoid inline elements from having extra margins */
+    margin: 0 auto; /* Center the image if needed */
+ }
+ .gridItemUser .likeCommentShare{
+    background-color: #f7e8d4;
+    margin: 10px;
+    display: flex;
+    flex-direction: row;
+    height: 60px;
+   
+ }
+ .likeCommentShare img{
+    height: 30px;
+    width: 30px;
+    margin: 10px;
+ }
+ .likeCommentShare img.commentBubble{
+    height: 30px;
+    width: 30px;
+    margin: 10px;
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transition */
+ }
+ .likeCommentShare img.commentBubble:hover {
+    transform: scale(1.1); /* Slightly enlarges the icon on hover */
+    content: url("../../static/messageCircleFilled.png"); /* Changes the image to the filled version */
+ }
+ .likeCommentShare img.heart {
+    height: 30px;
+    width: 30px;
+    margin: 10px;
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transition */
+ }
+ .likeCommentShare img.heart:hover {
+    transform: scale(1.1); /* Slightly enlarges the icon on hover */
+    content: url("../../static/heartFilled.png"); /* Changes the image to the filled version */
+ }
+ .likeCommentShare h3{
+    font-size: 20px;
+    margin-right: 20px;
+    font-weight: 100;
+    color: #9C9B9B;
+ }
+ .like-button{
+    background-color: #f7e8d4;
+    border-color: #f7e8d4;
+    border-style: none;
+ }
+ .comment-button {
+    background-color: #f7e8d4;
+    border-color: #f7e8d4;
+    border-style: none;
+ }
+ 
+ 
+ .gridItemUser .viewLikesComments{
+    background-color: #f7e8d4;
+    margin: 10px;
+    display: flex;
+    flex-direction: row;
+ }
+ .viewLikesComments .viewComments{
+    color: #9C9B9B;
+    font-weight: 100;
+    font-size: 25px;
+    margin: 10px;
+ }
+ .viewLikesComments .viewLikes{
+    color:#4F378A;
+    font-weight: 100;
+    font-size: 25px;
+    margin: 10px;
+ }
+ .viewLikesComments .viewLikes:hover{
+    color:#8F72D9;
+    font-weight: 100;
+    font-size: 25px;
+    text-decoration: underline;
+    margin: 10px;
+ }
+ 
+ 
+ /* Comment Section */
+ .gridItemComments {
+    background-color: #D9D9D9;
+    padding: 20px;
+    font-size: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align items to the top */
+    align-items: center;
+    text-align: center;
+    border-radius: 5px;
+    margin: 10px;
+    height: 650px
+ }
+ 
+ 
+ .carousel {
+    height: calc(100% - 120px); /* Fill the height of the comments section */
+    width: 100%;
+    overflow-y: auto; /* Allow vertical scrolling */
+    padding: 10px; /* Optional padding */
+    border-radius: 5px; /* Rounded corners */
+    margin-bottom: 10px;
+ }
+ 
+ 
+ .carousel-container {
+    display: flex;
+    flex-direction: column; /* Stack comments vertically */
+ }
+ 
+ 
+ .comment {
+    background-color: #D9D9D9; /* Background color for comments */
+    padding: 10px; /* Padding for comments */
+    margin: 5px 0; /* Space between comments */
+    border-radius: 5px; /* Rounded corners */
+    display: flex;
+    flex-direction: row;
+ }
+ .commentProfileImage{
+    margin: 6px;
+    height: 40px;
+    width: 40px;
+ }
+ .commentUsername{
+    margin: 4px;
+    font-weight: 100;
+    text-align: left;
+ }
+ .commentContent{
+    margin-left: 4px;
+    color: #9C9B9B;
+    text-align: left;
+    width: fit-content;
+    max-width: 500px;
+    word-wrap: break-word;
+ }
+ 
+ 
+ .commentInput {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+ }
+ /* Flexbox for aligning input fields and button */
+ .commentInputWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px; /* Adds some space between input fields */
+    margin: 10px;
+ }
+ .commentInputTextbox {
+    background-color: #D9D9D9;
+    border-color: #D9D9D9;
+    border-style: none;
+    height: 30px;
+    width: 200px;
+    margin: 0;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 16px;
+ }
+ 
+ .commentInputTextbox {
+    width: 500px; /* Adjust this value as needed */
+ }
+ .commentInputSubmit{
+    height: 30px;
+    background-color: #4F378A;
+    border-color: #D9D9D9;
+    border-style: none;
+    color: white;
+    padding: 8px;
+    border-radius: 8px;
+ }
+ .commentInputSubmit:hover{
+    height: 30px;
+    background-color: #8F72D9;
+    border-color: #D9D9D9;
+    border-style: none;
+    color: #4F378A;
+    padding: 8px;
+    border-radius: 8px;
+ }
+ .markdown-content img {
+   max-width: 100%;
+   height: auto;
+   display: block;
+}
+
+.profile-pic-small {
+   width: 50px;
+   height: 50px;
+   border-radius: 50%;
+   margin-right: 10px;
+}
+
+ .profile-pic {
+   width: 50px;
+   height: 50px;
+   border-radius: 50%;
+   margin-right: 10px;
+   margin-left: 90px;
+
+ }
+
+

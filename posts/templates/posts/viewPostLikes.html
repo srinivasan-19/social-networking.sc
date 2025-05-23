@@ -1,0 +1,191 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'viewPostLikes.css' %}">
+    <title>View Post</title>
+
+    <style>
+        /* Add hover style for the trash button */
+        .delete-button img.trash {
+            width: 30px;
+            height: 30px;
+            transition: transform 0.3s ease, content 0.3s ease;
+            margin: 0px;
+            margin-left: 20px;
+        }
+        .delete-button:hover img.trash {
+            transform: scale(1.1); /* Scale effect on hover */
+            content: url("{% static 'trashFilled.png' %}"); /* Change the image on hover */
+        }
+    </style>
+
+</head>
+<body>
+    <div class="header">
+        <section class="headerUserInfo">
+            <a href="{% url 'author_profile' request.user.author_serial %}"> <!-- Use the logged-in user's author ID -->
+                {% if request.user.profileImage %}
+                    <img src="{{ request.user.profileImage }}" 
+                     style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; margin-left: 90px;">
+                {% else %}
+                    <img src="{% static 'avatar.png' %}" 
+                     style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; margin-left: 90px;">
+                {% endif %}
+            </a>
+            <p class="currentUser">{{ request.user.displayName }}</p>
+        </section>
+        <div class="icons">
+            <a href="{% url 'home_page' %}">
+                <img src="{% static 'home.png' %}">
+            </a>
+            <a href="{% url 'create_post' %}">
+                <img src="{% static 'add_post.png' %}">
+            </a>
+            <a href="{% url 'inbox' %}">
+                <img src="{% static 'inbox.png' %}">
+            </a>
+        </div>
+    </div>
+
+
+    <section class="gridContainer">
+        <section class="gridItemLeft">
+            <section class="likesArea">
+                <h3 class="likesAreaTitle">Likes</h3>
+                <div class="carousel">
+                    <div class="carousel-container">
+                        {% for like in post.likes.all %}
+                            <div class="like">
+                                {% if like.author.profileImage %}
+                                    <img src="{{ like.author.profileImage }}" 
+                                     class="profile-pic-small">
+                                {% else %}
+                                    <img src="{% static 'avatar.png' %}" 
+                                        class="profile-pic-small">
+                                {% endif %}
+                                <div class="likeUsernameDate">
+                                    <h5 class="likeProfileUsername">{{like.username}}</h5> <!--TODO: add the username of the profile that liked -->
+                                    <h5 class="likeDate">{{ like.published}}</h5> 
+                                </div>
+                            </div>
+                        {% endfor %} 
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <section class="gridItemRight">
+            <div class="userInfo">
+                {% if post.author.profileImage %}
+                    <img src="{{ post.author.profileImage }}" 
+                    class="profile-pic-small">
+                {% else %}
+                    <img src="{% static 'avatar.png' %}" 
+                    class="profile-pic-small">
+                {% endif %}                <div class="username_DatePosted">
+                    <a class="username" href="{% url 'author_profile' post.author.author_serial %}">{{ post.author.displayName }}</a> <!-- TODO: make the username clickable to go to userProfile-->
+                    <h3 class="postDate">{{post.published|default:"NApublished"}}</h3>
+                </div>
+                <!-- <button class="followButton">Follow</button> -->
+                <!-- Only the author can delete their own posts -->
+                {% if user.author_serial == post.author.author_serial %}
+                    <form action="{% url 'delete_post' request.user.author_serial post.uuid %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="_method" value="DELETE"> <!--IMPORTANT: Walk around for delete method-->
+                        <button style="margin-top: 20px; background-color: #f8eac7; border-color: #f8eac7; border-style: none;" type="submit" class="delete-button">
+                            <img style="width: 30px; height: 30px;" class="trash" src="{% static 'trash.png' %}">
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+            <h1 class="postTitle">{{post.title|default:"NAtitle"}}</h1>
+            <div class="postContent">
+                {% if post.contentType == "text/plain" %}
+                    {{ post.content|default:"NAcontent" }}
+                {% elif post.contentType == "text/markdown" %}
+                    <div id="markdown-content-{{ post.uuid }}" class="markdown-content" data-content="{{ post.content|escapejs }}"></div>
+                {% elif post.contentType == "image/png;base64" or post.contentType == "image/jpeg;base64"  or post.contentType == "application/base64" %}
+                    <img src="{{ post.content }}" alt="Post Image" class="postImage">
+                {% else %}
+                    {{ post.content|default:"NAcontent" }}
+                {% endif %}       
+            </div>
+            <section class="likeCommentShare">
+                <form action="{% url 'api_create_like' post.author.author_serial %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="post_id" value="{{ post.uuid }}"> <!-- Use post.uuid here -->
+                    <input type="hidden" name="type" value="like">
+                    <button type="submit" class="like-button">
+                        <img class="heart" src="{% static 'heart.png' %}" alt="Like">
+                    </button>
+                </form>
+                <h3>{{ post.likes.count }} like(s)</h3>
+                <a type="submit" class="comment-button" href="{% url 'viewPost' fqid=post.id %}">
+                    <img class="commentBubble"src="/static/messageCircle.png">
+                </a>
+                <a class="viewComments" href="{% url 'viewPost' fqid=post.id %}">{{ post.comments.count }} comment(s)</a>
+                <img class="share-button" id="share-image" src="/static/share.png">
+                <h3>share</h3>
+            </section>
+            <!-- <section class="viewLikesComments">
+                <a class="viewComments" href="{% url 'viewPost' fqid=post.id %}">view comments</a>
+            </section> -->
+        </section>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const shareImage = document.getElementById('share-image');
+                
+                shareImage.addEventListener('click', function () {
+                    const postUrl = window.location.href;  // Get the current post URL
+        
+                    // Check if the Web Share API is supported
+                    if (navigator.share) {
+                        navigator.share({
+                            title: document.title, // Use the page title or post title
+                            text: 'Check out this post!',
+                            url: postUrl
+                        }).then(() => {
+                            console.log('Post shared successfully!');
+                        }).catch((error) => {
+                            console.error('Error sharing the post:', error);
+                        });
+                    } else {
+                        // Fallback for browsers that don't support the Web Share API
+                        const tempInput = document.createElement('input');
+                        document.body.appendChild(tempInput);
+                        tempInput.value = postUrl;
+                        tempInput.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempInput);
+                        alert('Post link copied to clipboard!');
+                    }
+                });
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const likesArea = document.querySelector('.likesArea');
+
+                if (likesArea) {
+                setTimeout(() => {
+                likesArea.classList.add('active');
+                }, 0); // Optional slight delay for dramatic effect
+            }
+            });
+        </script>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.markdown-content').forEach(function (element) {
+                const markdownContent = element.getAttribute('data-content');
+                if (markdownContent) {
+                    element.innerHTML = marked.parse(markdownContent);
+                }
+            });
+        });
+    </script>
+</body>

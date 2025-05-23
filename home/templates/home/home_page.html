@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{% static 'home_page.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'home_page.js' %}"></script>
+</head>
+<body>
+    <div class="header">
+        <section class="headerUserInfo">
+            <a href="{% url 'author_profile' request.user.author_serial %}">
+            
+                <img class="profile-pic" src="{{ request.user.profileImage }}">
+                
+            </a>
+            <p class="currentUser">{{ request.user.displayName }}</p>
+        </section>
+        <form method="GET" action="{% url 'search_results' %}" class="search-form">
+            <input type="text" name="q" placeholder="Search by display name..." class="search-bar">
+            <button type="submit" class="search-button">Search</button>
+        </form>
+        <div class="icons">
+            <a href="{% url 'home_page' %}"><img src="{% static 'home.png' %}"></a>
+            <a href="{% url 'create_post' %}"><img src="{% static 'add_post.png' %}"></a>
+            <a href="{% url 'inbox' %}"><img src="{% static 'inbox.png' %}"></a>
+        </div>
+    </div>
+    <div id="loadingIndicator" class="loading-spinner" style="display: none;">Loading posts...</div>
+    <div class="post-container" id="post-container">
+    </div>
+    <script>
+        // Load posts dynamically using JavaScript
+        document.addEventListener('DOMContentLoaded', function () {
+            const userId = "{{ request.user.author_serial }}"; // Current user ID
+            const apiUrl = `/api/authors/${userId}/posts/`; // API URL
+            const followingList = {{ following_list|safe }}; // Pass following_list from Django
+            const defaultAvatarUrl = "{% static 'avatar.png' %}";
+            const loadingIndicator = document.getElementById('loadingIndicator');
+
+            // Show the loading spinner before fetching data
+            loadingIndicator.style.display = 'flex';
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("data: ", data);
+                    const postContainer = document.getElementById('post-container');
+
+                    data.src.forEach((post, index) => {
+                        console.log("\ncurrent post: ",  post);
+                        const isFollowing = followingList[index]; // Match follow status by index
+                        const profileImageUrl = post.author.profileImage 
+                            ? `data:image/png;base64,${post.author.profileImage}` 
+                            : defaultAvatarUrl;
+
+                        console.log(`Likes: ${post.likes.count}, Comments: ${post.comments.count}`);
+
+
+                        const postElement = `
+                            <a href="/post/${post.id}/viewPost/" style="text-decoration: none; color: inherit;">
+                                <div class="post">
+                                    <div class="post-header">
+                                        <img src="${post.author.profileImage || '/static/avatar.png'}" class="profile-pic-small">
+                                        <div>
+                                            <p class="username">${post.author.displayName}</p>
+                                            <p class="date-posted">${new Date(post.published).toLocaleDateString()}</p>
+                                        </div>
+                                        <div class="post-visibility">
+                                            ${getVisibilityTag(post.visibility)}
+                                        </div>
+                                       
+                                    </div>
+                                    <div class="post-content">
+                                        <h2 class="title">${post.title}</h2>
+                                        <p class="description">${post.description}</p>
+                                        <hr class="description">
+                                        ${renderPostContent(post)}
+                                    </div>
+                                    <div class="post-footer">
+                                        <div class="interactions">
+                                            <span class="interactions-text">${post.likes.count}</span>
+                                            <span class="interactions-text">Likes</span>
+                                            <span class="interactions-text">${post.comments.count}</span>
+                                            <span class="interactions-text">Comments</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        `;
+                        postContainer.innerHTML += postElement;
+                    });
+
+                    document.querySelectorAll('.markdown-content').forEach(function (element) {
+                        const markdownContent = element.getAttribute('data-content').trim();
+                        const cleanedContent = markdownContent.replace(/\\u000D|\\u000A/g, "");
+                        if (cleanedContent) {
+                            element.innerHTML = marked.parse(cleanedContent);
+                        }
+                    });
+
+                    // Hide the loading indicator once data is loaded
+                    loadingIndicator.style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error fetching posts:', error);
+                    document.getElementById('post-container').innerHTML = '<p>Error loading posts.</p>';
+                });
+
+            function renderPostContent(post) {
+                if (post.contentType.startsWith('image/') || post.contentType.startsWith('application/')) {
+                    return `<img src="${post.content}" alt="Uploaded Image" style="max-width: 100%; height: auto;">`;
+                } else if (post.contentType === 'text/markdown') {
+                    return `<div class="content markdown-content" data-content="${post.content}"></div>`;
+                } else {
+                    return `<p class="content">${post.content}</p>`;
+                }
+            }
+
+            function getVisibilityTag(visibility) {
+                const visibilityMap = {
+                    'PUBLIC': 'Public',
+                    'FRIENDS': 'Friends Only',
+                    'UNLISTED': 'Unlisted',
+                    'DELETED': 'Deleted'
+                };
+                const classMap = {
+                    'PUBLIC': 'public',
+                    'FRIENDS': 'friends-only',
+                    'UNLISTED': 'unlisted',
+                    'DELETED': 'deleted'
+                };
+                return `<span class="visibility-tag ${classMap[visibility]}">${visibilityMap[visibility]}</span>`;
+            }
+
+        
+        });
+    </script>
+</body>
+</html>

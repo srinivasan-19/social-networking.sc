@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<!-- Coding By CodingNepal - codingnepalweb.com -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <title>Login & Signup Form</title>
+    <link rel="stylesheet" href="{% static 'login.css' %}" />
+  </head>
+  <body>
+    <section class="wrapper">
+      <div class="form signup">
+        <header>Signup</header>
+        <form id="signupForm" action="javascript:void(0);">
+          <input type="text" id="signupUsername" placeholder="UserName" required />
+          <input type="password" id="signupPassword" placeholder="Password" required />
+          <input type="submit" value="Signup" />
+        </form>
+      </div>
+  
+      <div class="form login">
+        <header>Login</header>
+        <form id="loginForm" action="javascript:void(0);">
+          <input type="text" id="loginUsername" placeholder="UserName" required />
+          <input type="password" id="loginPassword" placeholder="Password" required />
+          <!-- <a href="#">Forgot password?</a> -->
+          <input type="submit" value="Login" />
+        </form>
+      </div>
+    </section>
+  
+    <script>
+      const wrapper = document.querySelector(".wrapper"),
+        signupHeader = document.querySelector(".signup header"),
+        loginHeader = document.querySelector(".login header");
+  
+      // Toggle between signup and login forms
+      loginHeader.addEventListener("click", () => {
+        wrapper.classList.add("active");
+      });
+      signupHeader.addEventListener("click", () => {
+        wrapper.classList.remove("active");
+      });
+      let origin = window.location.origin;
+      function getToken(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie != '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0,name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
+      const csrftoken = getToken('csrftoken');
+      // Handle form submissions with fetch POST requests
+      document.getElementById("signupForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const displayName = document.getElementById("signupUsername").value;
+        const password = document.getElementById("signupPassword").value;
+        // url should be "host+ api/signup"
+        let host = window.location.host;
+        // if heroku in host, add https
+        if (host.includes("heroku")) host = "https://"+host;
+        else host = "http://"+host;
+        
+        const response = await fetch(origin+"/api/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+          body: JSON.stringify({ displayName, password, host })
+        });
+  
+        if (response.ok) {
+          alert("Signup successful");
+          // click the login header to switch to the login form
+          loginHeader.click();
+        } else {
+          response.json().then(data => alert(data.detail+" Try again"));
+          
+          // show the signup form again
+          signupHeader.click();
+
+        }
+      });
+  
+      document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const displayName = document.getElementById("loginUsername").value;
+        const password = document.getElementById("loginPassword").value;
+  
+        const response = await fetch(origin+"/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" , "X-CSRFToken": csrftoken},
+          body: JSON.stringify({ displayName, password })
+        });
+  
+        if (response.ok) {
+          //alert("Login successful");
+          // redirect to the home page
+          window.location.href = "/";
+        } else {
+          response.json().then(data => alert(data.detail+" Try again"));
+          loginHeader.click();
+        }
+      });
+    </script>
+  </body>  
+</html>

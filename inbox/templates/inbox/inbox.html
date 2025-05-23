@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox</title>
+    <link rel="stylesheet" href="{% static 'inbox.css' %}">
+
+    <script id="followRequestsData" type="application/json">
+        {{ follow_requests|json_script:"followRequestsData" }}
+    </script>
+    
+    <script id="commentsData" type="application/json">
+        {{ comments|json_script:"commentsData" }}
+    </script>
+    
+    <script id="likesData" type="application/json">
+        {{ likes|json_script:"likesData" }}
+    </script>
+
+    <script id="repostData" type="application/json">
+        {{ reposts|json_script:"repostData" }}
+    </script>
+
+    <script src="{% static 'inbox.js' %}"></script>
+</head>
+<body>
+    <div class="header">
+        <a href="{% url 'author_profile' request.user.author_serial %}"> <!-- Use the logged-in user's author ID -->
+            {% if request.user.profileImage %}
+                <img src="{{ request.user.profileImage }}"
+                style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; margin-left: 90px;">
+            {% else %}
+                <img src="{% static 'avatar.png' %}" 
+                style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; margin-left: 90px;">
+            {% endif %}
+        </a>
+        <div class="icons">
+            <a href="{% url 'home_page' %}">
+                <img src="{% static 'home.png' %}">
+            </a>
+            <a href="{% url 'create_post' %}">
+                <img src="{% static 'add_post.png' %}">
+            </a>
+            <a href="{% url 'inbox' %}">
+                <img src="{% static 'inbox.png' %}">
+            </a>
+        </div>
+    </div>
+    <div class="form-title">Inbox</div>
+    <div class="container">
+        <h2>Follow Requests</h2>
+        {% for request in follow_requests %}
+        <div class="notification" id="followRequest-{{ forloop.counter0 }}">
+            <img src="{{ request.profileImage }}" class="profileImage">
+            <div class="content">
+                <p class="description">{{ request.author1__displayName }} wants to follow you</p>
+                <div class="action-buttons" type = "follow_request" data-index="{{ forloop.counter0 }}">
+                    <button class="accept">Accept</button>
+                    <button class="decline">Decline</button>
+                </div>
+            </div>
+            <span class="date">{{ request.created_at|date:"Y-m-d H:i:s" }}</span>
+            <!-- <img style="padding: 0px 20px;" src="{% static 'close.png' %}"> -->
+        </div>
+        {% endfor %}
+
+        <h2>Comments</h2>
+        {% for comment in comments %}
+        <div class="notification">
+            <img src="{{ comment.profileImage }}" class="profileImage">
+            <div class="content">
+                <p class="description">{{ comment.username }} commented on your post</p>
+                <!-- <div class="action-buttons" data-index="{{ forloop.counter0 }}">
+                        <button class="accept">Go to the post</button>
+                    </a>
+                </div>  -->
+            </div>
+            <span class="date">{{ comment.created_at|date:"Y-m-d H:i:s" }}</span>
+            <!-- <img style="padding: 0px 20px;" src="{% static 'close.png' %}" class="profileImage"> -->
+        </div>
+        {% endfor %}
+
+        <h2>Likes</h2>
+        {% for like in likes %}
+        <div class="notification">
+            <img src="{{ like.profileImage }}" class="profileImage">
+            <div class="content">
+                {% if like.post__title %}
+                    <p class="description">{{ like.username }} liked the post "{{ like.post__title }}"</p>
+                {% elif like.comment__comment %}
+                    <p class="description">{{ like.username }} liked the comment "{{ like.comment__comment }}"</p>
+                {% endif %}
+                </div>
+                <span class="date">{{ like.published|date:"Y-m-d H:i:s" }}</span>
+                <!-- <img style="padding: 0px 20px;" src="{% static 'close.png' %}" class="profileImage"> -->
+            </div>
+        {% endfor %}
+
+
+
+        {% for repost in reposts %}
+        <div class="notification">
+            <img src="{{ repost.profileImage }}" class="profileImage">
+            <div class="content">
+                <p class="description">{{ repost.author__displayName }} reposted "{{ repost.title }}"</p>
+                <!-- <div class="action-buttons" data-index="{{ forloop.counter0 }}">
+                        <button class="accept">Go to the post</button>
+                    </a>
+                </div>  -->
+            </div>
+            <!-- <span class="date">{{ like.like_date|date:"Y-m-d H:i:s" }}</span> -->
+            <img  src="{% static 'close.png' %}" class="profileImage">
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

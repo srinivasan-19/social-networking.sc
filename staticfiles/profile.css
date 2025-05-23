@@ -1,0 +1,531 @@
+/* General Reset */
+* {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body and Container Layout */
+body {
+    background-color: #f8eac7;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    height: calc(100vh - 60px);
+}
+
+/* Header */
+.header {
+    background-color: #3e305e;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header .icons {
+    display: flex;
+    gap: 50px;
+    padding-right: 90px;
+}
+
+/* Icon Links */
+.icon-links {
+    display: flex;
+    justify-content: left;
+    padding: 10px 0;
+    padding-left: 40px;
+    background-color: #fff;
+}
+
+.icon-links a {
+    margin: 0 15px;
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1em;
+    text-transform: uppercase;
+}
+
+.icon-links a:hover {
+    color: #f8eac7;
+}
+
+/* Profile Area */
+.profile-area {
+    width: 20%;
+    padding: 20px;
+    background-color: #D9D9D9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    position: sticky;
+    top: 0;
+    height: 100%;
+    overflow-y: auto;
+    display: flex; /* Using flexbox */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center children horizontally */
+    justify-content: flex-start; /* Align children to start vertically */
+}
+
+.welcome-message {
+    color: #000000; /* White color for visibility */
+    font-size: 1.5em; /* Larger font size */
+    margin-top: 20px; /* Space from the top of the container */
+    z-index: 10; /* Ensure it's above other content */
+    width: 100%; /* Take full width to center text effectively */
+}
+
+.profile-area .profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    border: 3px solid #3e305e;
+    margin-top: 20px;
+}
+
+.profile-area .profile-name {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #3e305e;
+}
+
+.profile-area .profile-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.profile-area .profile-menu li {
+    margin: 15px 0;
+}
+
+.profile-area .profile-menu li a {
+    color: #3e305e;
+    text-decoration: none;
+    font-size: 1.2em;
+}
+
+.profile-area .profile-menu li a:hover {
+    color: #6d4f8d;
+}
+
+/* Main Content */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Post Box */
+.post-box {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+    padding: 20px;
+    width: 80%;
+    max-width: 800px;
+    align-self: center;
+    margin-left: auto; /* Center align horizontally */
+    margin-right: auto;
+    overflow: hidden; /* Ensures no content spills out */
+}
+
+.post-image img {
+    width: 100%; /* Ensures image takes up all available width */
+    height: auto; /* Keeps the image proportionate */
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic-small {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.profile-pic-header {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+    margin-left: 90px;
+}
+
+.author-name-date h4,
+.author-name-date p {
+    margin: 0;
+    color: #666;
+}
+
+/* Post Actions */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.action-buttons .delete-button,
+.action-buttons .edit-button {
+    background-color: #3e305e;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    width: 100px;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    text-decoration: none;
+    height: 37px;
+    font-size: 15px;
+}
+
+.action-buttons .delete-button {
+    background-color: rgb(219, 94, 77);
+}
+
+.action-buttons .delete-button:hover {
+    background-color: darkred;
+}
+
+.action-buttons .edit-button:hover {
+    background-color: #6d4f8d;
+}
+.logout-button {
+    background-color: rgb(209, 31, 31); /* Soft red background */
+    color: #ffffff; /* White text */
+    padding: 8px 20px; /* Padding for size */
+    font-size: 16px; /* Font size */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+}
+
+/* Post Content */
+.post-content img {
+    max-width: 100%;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.post-content p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Post Footer */
+.post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.post-footer a {
+    text-decoration: none;
+    color: #3e305e;
+}
+
+.post-footer a:hover {
+    text-decoration: underline;
+    color: #6d4f8d;
+}
+
+.post-title h3 {
+    color: #3e305e; /* Matching the theme color */
+    margin-bottom: 10px; /* Spacing before the image or content */
+}
+.settings-container {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto; 
+    margin-bottom: 20px;
+}
+.settings-container h2 {
+    text-align: center; 
+    color: #333; 
+    margin-bottom: 20px; 
+}
+
+.settings-container form {
+    display: flex;
+    flex-direction: column;  /* Stack form elements vertically */
+    gap: 15px; 
+}
+
+.settings-container input[type="text"],
+.settings-container input[type="url"],
+.settings-container input[type="file"],
+.settings-container select,
+.settings-container textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    font-size: 16px;
+    background-color: #fff; 
+    box-sizing: border-box;  /* Ensure padding doesn't affect overall width */
+}
+
+.settings-container button[type="submit"] {
+    padding: 12px;
+    background-color: #4CAF50; 
+    color: #fff; 
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer; 
+    transition: background-color 0.3s ease; 
+}
+
+.settings-container button[type="submit"]:hover {
+    background-color: #45a049; 
+}
+
+.settings-container button[type="submit"]:active {
+    background-color: #388e3c;
+}
+
+/* General styles for list boxes - Modify existing */
+.following-list, .followers-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    background-color: #f8eac7;  /* Match your existing theme */
+    padding: 20px;
+}
+
+/* List box styling - Modify existing */
+.following-box, .follower-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 80%;
+    max-width: 600px;
+    min-height: 70px;
+    padding: 15px;
+    border: 1px solid #3e305e;  /* Match your theme color */
+    border-radius: 10px;
+    margin-bottom: 15px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Info and profile image styling - Add new */
+.following-info, .follower-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #3e305e;  /* Match your theme color */
+    object-fit: cover;
+}
+
+/* Friend tag - Modify existing */
+.friend-tag {
+    background-color: #4CAF50;
+    color: white;
+    padding: 2px 5px;
+    margin-left: 10px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+/* Unfollow button styling - Modify existing */
+.unfollow-button {
+    background-color: rgb(219, 94, 77);  /* Match your existing delete button color */
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.unfollow-button:hover {
+    background-color: darkred;  /* Match your existing hover color */
+}
+
+/* Additional margin for friend tag to align properly */
+.following-info span.friend-tag,
+.follower-info span.friend-tag {
+    margin-left: 10px;
+}
+
+/* Optional: Flex-grow adjustment for consistent spacing */
+.following-info, .follower-info {
+    flex-grow: 1;
+}
+
+.follow-button {
+    padding: 6px 14px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.follow-button {
+    background-color: #3e305e;  /* Match your theme color */
+    color: white;
+    border: none;
+}
+
+.unfollow-button {
+    background-color: rgb(219, 94, 77);  /* Match your existing delete button color */
+    color: white;
+    border: none;
+}
+
+.follow-button:hover {
+    background-color: #6d4f8d;  /* Match your existing hover color */
+}
+
+.unfollow-button:hover {
+    background-color: darkred;  /* Match your existing hover color */
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.search-bar {
+    width: 300px;
+    padding: 8px;
+    font-size: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+}
+
+.search-button {
+    padding: 9px 16px;
+    font-size: 12px;
+    background-color: #5a00a3;
+    color: white;
+    border:none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+}
+
+.search-button:hover {
+    background-color: #3f0069;
+}
+.markdown-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.friend-tag {
+    background-color: #4CAF50;
+    color: white;
+    padding: 2px 5px;
+    margin-left: 10px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.author-details {
+    background-color: #f9f9f9; /* Light grey background */
+    padding: 20px; /* Padding around the content */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    max-width: 600px; /* Restrict width */
+    margin: 20px auto; /* Center the container */
+    font-family: Arial, sans-serif; /* Font for content */
+}
+
+.author-details h2 {
+    color: #333333; /* Dark grey for the heading */
+    font-size: 24px; /* Slightly larger heading font */
+    margin-bottom: 15px; /* Space below the heading */
+}
+
+.author-info p {
+    color: #555555; /* Medium grey for text */
+    font-size: 16px; /* Font size for paragraphs */
+    margin: 8px 0; /* Space between paragraphs */
+}
+
+.author-info p strong {
+    color: #333333; /* Darker color for labels */
+}
+
+.author-info a {
+    color: #0066cc; /* Link color */
+    text-decoration: none; /* Remove underline */
+    transition: color 0.3s; /* Smooth color transition */
+}
+
+.feed-header {
+    text-align: center;
+    margin: 0px 00px 20px 0px;
+}
+
+/* Info and profile image styling */
+.following-info, .follower-info {
+    display: flex;
+    align-items: center;  /* This centers items vertically */
+    gap: 15px;
+}
+
+.follower-info a, .following-info a {
+    display: flex;
+    align-items: center;  /* This ensures the name and image are vertically centered */
+    text-decoration: none;
+    color: #333;
+    gap: 15px;
+    line-height: 50px;  /* Match this with the image height */
+}
+
+.profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #3e305e;
+    object-fit: cover;
+    vertical-align: middle;  /* Helps with alignment */
+}
+
+/* Name styling */
+.follower-info span, .following-info span {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;  /* Reset line height for the text */
+    font-size: 1.4em;  /* Increased from 16px to 1.2em */
+    font-weight: 500;  /* Added medium font weight for better visibility */
+    color: #3e305e;    /* Using your theme color */
+}

@@ -1,0 +1,35 @@
+{% extends 'author/author_base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="author-details">
+    <h2>About {{ author.displayName }}</h2>
+
+    <!-- Display the author's profile image -->
+    <!-- <div class="author-profile-image">
+        {% if author.profileImage %}
+            <img src="{{ author.profileImage }}" alt="{{ author.displayName }}'s Profile Picture" class="profile-pic-large">
+        {% else %}
+            <img src="{% static 'avatar.png' %}" alt="Default Profile Picture" class="profile-pic-large">
+        {% endif %}
+    </div> -->
+
+    <!-- Display author details -->
+    <div class="author-info">
+        <p><strong>Display Name:</strong> {{ author.displayName }}</p>
+        <p><strong>Host:</strong> {{ author.host }}</p>
+        {% if author.github %}
+            <p><strong>GitHub:</strong> <a href="{{ author.github }}" target="_blank">{{ author.github }}</a></p>
+        {% else %}
+            <p><strong>GitHub:</strong> Not provided</p>
+        {% endif %}
+        
+        {% if author.page %}
+            <p><strong>Personal Page:</strong> <a href="{{ author.page }}" target="_blank">{{ author.page }}</a></p>
+        {% else %}
+            <p><strong>Personal Page:</strong> Not provided</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

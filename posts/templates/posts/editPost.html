@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'createPost.css' %}">
+    <title>Edit Post</title>
+</head>
+<body>
+    <div class="header">
+        <a href="{% url 'author_profile' request.user.author_serial %}">
+            {% if request.user.profileImage %}
+                <img src="{{ request.user.profileImage }}" 
+                 style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; margin-left: 90px;">
+            {% else %}
+                <img src="{% static 'avatar.png' %}" 
+                 style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; margin-left: 90px;">
+            {% endif %}
+        </a>
+        <div class="icons">
+            <a href="{% url 'home_page' %}">
+                <img src="{% static 'home.png' %}">
+            </a>
+            <a href="{% url 'create_post' %}">
+                <img src="{% static 'add_post.png' %}">
+            </a>
+            <a href="{% url 'inbox' %}">
+                <img src="{% static 'inbox.png' %}">
+            </a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="form-title">Edit Post</div>
+        <form id="save-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="_method" value="PUT">
+            <div class="form-field-inline">
+                <div class="form-field">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title" value="{{ post.title }}">
+                </div>
+                <div class="form-field">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" name="description" value="{{ post.description }}">
+                </div>
+                <div class="form-field">
+                    <label for="visibility">Visibility</label>
+                    <select id="visibility" name="visibility">
+                        <option value="PUBLIC" {% if post.visibility == 'PUBLIC' %}selected{% endif %}>Public</option>
+                        <option value="UNLISTED" {% if post.visibility == 'UNLISTED' %}selected{% endif %}>Unlisted</option>
+                        <option value="FRIENDS" {% if post.visibility == 'FRIENDS' %}selected{% endif %}>Friends-only</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-field-inline">
+                <div class="form-field">
+                    <label for="content-type">Content Type</label>
+                    <select id="content-type" name="contentType">
+                        <option value="text/plain" {% if post.contentType == 'text/plain' %}selected{% endif %}>Plain Text</option>
+                        <option value="text/markdown" {% if post.contentType == 'text/markdown' %}selected{% endif %}>Markdown</option>
+                        <option value="image/jpeg;base64" {% if post.contentType == 'image/jpeg;base64' %}selected{% endif %}>Image (JPEG)</option>
+                        <option value="image/png;base64" {% if post.contentType == 'image/png;base64' %}selected{% endif %}>Image (PNG)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-field" id="text-content-field">
+                <label for="content">Content</label>
+                {% if post.contentType != "image/png;base64" and post.contentType != "image/jpeg;base64" %}
+                    <textarea id="content" name="content">{{ post.content }}</textarea>
+                {% else %}
+                    <textarea id="content" name="content"></textarea>
+                {% endif %}
+            </div>
+            <div class="form-field" id="image-upload-field" style="display: none;">
+                <label>Image Upload</label>
+                <div id="image-upload-container">
+                    {% if post.contentType == "image/png;base64" or post.contentType == "image/jpeg;base64" %}
+                        <img src="{{ post.content }}" alt="Uploaded Image" style="max-width: 100%; height: auto;">
+                    {% else %}
+                        <span>No Image Uploaded</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="buttons">
+                <label for="img" id="file-upload-label" class="file-upload-label" style="display: none;">
+                    Upload Image
+                </label>
+                <input type="file" id="img" name="img" accept="image/*" style="display: none;">
+                <button type="submit">Update</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('save-form').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the default form submission
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch("{% url 'edit_post' request.user.author_serial post.uuid %}", {
+                    method: 'PUT',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    // Redirect to profile page on successful response
+                    window.location.href = "{% url 'author_profile' request.user.author_serial %}";
+                } else {
+                    const result = await response.json();
+                    alert(result.error || "An error occurred.");
+                }
+            } catch (error) {
+                console.error("Error updating post:", error);
+            }
+        });
+
+        function toggleContentFields(contentType) {
+            const textContentField = document.getElementById('text-content-field');
+            const imageUploadField = document.getElementById('image-upload-field');
+            const fileUploadLabel = document.getElementById('file-upload-label');
+
+            if (contentType.startsWith('image/')) {
+                textContentField.style.display = 'none';
+                imageUploadField.style.display = 'block';
+                fileUploadLabel.style.display = 'inline-block';
+            } else if (contentType.startsWith('text/')) {
+                imageUploadField.style.display = 'none';
+                textContentField.style.display = 'block';
+                fileUploadLabel.style.display = 'none';
+            }
+        }
+
+        document.getElementById('content-type').addEventListener('change', function(event) {
+            toggleContentFields(event.target.value);
+        });
+
+        toggleContentFields(document.getElementById('content-type').value);
+        
+        document.getElementById('img').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const container = document.getElementById('image-upload-container');
+                    container.innerHTML = '';
+                    const imgElement = document.createElement('img');
+                    imgElement.src = e.target.result;
+                    container.appendChild(imgElement);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+
+</body>
+</html>

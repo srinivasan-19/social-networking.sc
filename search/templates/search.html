@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{% static 'search_page.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <a href="{% url 'author_profile' request.user.author_serial %}"> <!-- Use the logged-in user's author ID -->
+            {% if request.user.profileImage %}
+                <img style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 10px; margin-left: 90px;" 
+                    src="{{ request.user.profileImage }}" 
+                    alt="Profile Picture">
+            {% else %}
+                <img style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;margin-left: 90px;" src="{% static 'avatar.png' %}" alt="Default Profile Picture">
+            {% endif %}        
+        </a>
+        <form method="GET" action="{% url 'search_results' %}" class="search-form">
+            <input type="text" name="q" placeholder="Search by display name..." class="search-bar">
+            <button type="submit" class="search-button">Search</button>
+        </form>
+        <div class="icons">
+            <a href="{% url 'home_page' %}">
+                <img src="{% static 'home.png' %}">
+            </a>
+            <a href="{% url 'create_post' %}">
+                <img src="{% static 'add_post.png' %}">
+            </a>
+            <a href="{% url 'inbox' %}">
+                <img src="{% static 'inbox.png' %}">
+            </a>
+        </div>
+    </div>
+    <div class="search-results">
+        <h3>Search Results:</h3>
+        {% if results %}
+            <div class="results-grid">
+                {% for user in results %}
+                    <a href="{% url 'author_profile' user.author_serial %}" class="result-box">
+                        <div class="profile-image-container">
+                            {% if user.profileImage %}
+                                <img src="{{ user.profileImage }}" alt="{{ user.displayName }}" class="profile-image">
+                            {% else %}
+                                <img src="{% static 'avatar.png' %}" alt="Default Profile" class="profile-image">
+                            {% endif %}
+                        </div>
+                        <div class="user-info">
+                            <h4>{{ user.displayName }}</h4>
+                        </div>
+                    </a>
+                {% empty %}
+                    <p>No users found.</p>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No users found.</p>
+        {% endif %}
+    </div>

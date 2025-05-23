@@ -1,0 +1,38 @@
+{% extends 'author/author_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="following-container">
+    <h2>{{ author.displayName }} is Following</h2>
+    
+    {% if following_list %}
+        <div class="following-list">
+            {% for follow in following_list %}
+                <div class="following-item">
+                    <div class="following-info">
+                        {% if follow.author2.profileImage %}
+                            <img src="{{ follow.author2.profileImage }}" alt="Profile Image" class="profile-image">
+                        {% else %}
+                            <img src="{% static 'avatar.png' %}" alt="Default Profile" class="following-profile-pic">
+                        {% endif %}
+                        
+                        <div class="following-details">
+                            <a href="{% url 'author_profile' follow.author2.id %}" class="following-name">
+                                {{ follow.author2.displayName }}
+                            </a>
+                            {% if follow.author2.github %}
+                                <a href="{{ follow.author2.github }}" class="github-link" target="_blank">
+                                    GitHub Profile
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-following">Not following anyone yet</p>
+    {% endif %}
+</div>
+
+{% endblock %}
